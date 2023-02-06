@@ -1,0 +1,177 @@
+#include <iostream>
+#include <vector>
+#include <string>
+
+//creates a type for all the tokens
+enum TokenType {
+  TK_EOF,
+  TK_INT,
+  TK_STRING,
+  TK_ID,
+  TK_TYPE,
+  TK_PRINT,
+  TK_ASSIGN,
+  TK_OPEN_BRACE,
+  TK_CLOSE_BRACE,
+  TK_OPEN_PAREN,
+  TK_CLOSE_PAREN,
+  TK_WHILE,
+  TK_IF,
+  TK_TRUE,
+  TK_FALSE,
+  TK_NOT_EQUAL,
+  TK_EQUAL,
+  TK_PLUS,
+};
+
+//structures the type
+struct Token {
+  TokenType type;
+  std::string value;
+  std::string word;
+  int position;
+
+};
+//lexer class to handle lines of code
+class Lexer {
+ public:
+  explicit Lexer(const std::string& input) : input_(input) {}
+
+//Do I need to go back and track these?
+  Token GetNextToken() {
+    SkipWhitespace();
+
+    if (input_[pos_] == '{') {
+      ++pos_;
+      return Token{TK_OPEN_BRACE, "{","OPEN BLOCK", pos_};
+    }
+
+    if (input_[pos_] == '}') {
+      ++pos_;
+      return Token{TK_CLOSE_BRACE, "}","CLOSEBLOCK", pos_};
+    }
+
+    if (input_[pos_] == '(') {
+      ++pos_;
+      return Token{TK_OPEN_PAREN, "(","OPENPAREN", pos_};
+    }
+
+    if (input_[pos_] == ')') {
+      ++pos_;
+      return Token{TK_CLOSE_PAREN, ")","CLOSEPAREN", pos_};
+    }
+
+    if (input_[pos_] == '+') {
+      ++pos_;
+      return Token{TK_PLUS, "+","PLUS SIGN", pos_};
+    }
+
+    if (input_[pos_] == '=') {
+      ++pos_;
+      if (input_[pos_] == '=') {
+        ++pos_;
+        return Token{TK_EQUAL, "==","EQUALS", pos_};
+      }
+      return Token{TK_ASSIGN, "=" ,"ASSIGNMENT STATEMENT", pos_};
+    }
+
+    if (input_[pos_] == '$') {
+        ++pos_;
+    return Token{TK_EOF, "$","END OF PROGRAM", pos_};
+    }
+
+    if (input_[pos_] == '!') {
+      ++pos_;
+      if (input_[pos_] == '=') {
+        ++pos_;
+        return Token{TK_NOT_EQUAL, "!=","NOT EQUALS", pos_};
+      } else {
+        
+      }
+    }
+
+    if (isdigit(input_[pos_])) {
+      int start = pos_;
+      while (isdigit(input_[pos_])) {
+        ++pos_;
+      }
+      return Token{TK_INT, input_.substr(start, pos_ - start),"DIGIT", pos_};
+    }
+
+    if (isalpha(input_[pos_])) {
+      int start = pos_;
+      while (isalpha(input_[pos_])) {
+        ++pos_;
+      }
+      std::string value = input_.substr(start, pos_ - start);
+            if (value == "print") {
+        return Token{TK_PRINT, "print","PRINT", pos_};
+      }
+
+      if (value == "int") {
+        return Token{TK_TYPE, "int","TYPE", pos_};
+      }
+
+      if (value == "string") {
+        return Token{TK_TYPE, "string","TYPE", pos_};
+      }
+
+      if (value == "boolean") {
+        return Token{TK_TYPE, "boolean","TYPE", pos_};
+      }
+
+      if (value == "while") {
+        return Token{TK_WHILE, "while","WHILE STATEMENT", pos_};
+      }
+
+      if (value == "if") {
+        return Token{TK_IF, "if","IF STATEMENT", pos_};
+      }
+
+      if (value == "true") {
+        return Token{TK_TRUE, "true","TRUE ", pos_};
+      }
+
+      if (value == "false") {
+        return Token{TK_FALSE, "false","FALSE", pos_};
+      }
+
+      return Token{TK_ID, value,"ID", pos_};
+    }
+
+    if (input_[pos_] == '"') {
+      ++pos_;
+      int start = pos_;
+      while (input_[pos_] != '"') {
+        ++pos_;
+      }
+      ++pos_;
+      return Token{TK_STRING, input_.substr(start, pos_ - start - 1)};
+    }
+
+    
+  }
+
+ private:
+  void SkipWhitespace() {
+    while (pos_ < input_.size() && isspace(input_[pos_])) {
+      ++pos_;
+    }
+  }
+
+  std::string input_;
+  int pos_ = 0;
+};
+
+void lexer() {
+std::string input = "{} int a  = a $";
+Lexer lexer(input);
+Token token;
+do {
+    token = lexer.GetNextToken();
+    std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << token.position <<std::endl;
+}     while (token.type != TK_EOF);
+
+}
+
+
