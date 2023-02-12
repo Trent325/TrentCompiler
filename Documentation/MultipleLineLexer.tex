@@ -1,0 +1,17 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Multiple Line Lexer}
+\author{Trent Green}
+\date{Commit Number Two}
+\maketitle
+
+\section{Introduction}
+
+Today I decided to continue my lexer. I knew that I had to add support for multiple lined programs, and multiple programs in one text file. I did so by prompting the user to enter a text file. The file is then passed line by line to the lexer. The lexer than splits them up by programs and prints out the proper debugging statements. I also changed the parameters of the lexer function to take in line numbers as well in order to make keeping track of that easier.
+
+\section{For Next Time}
+
+I know for next commit I need to do more testing. I also need to include error detection as well. I also will be putting all the tokens into an array as well so they can be handed over to the parser easily.
+
+\end{document}

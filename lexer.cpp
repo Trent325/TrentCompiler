@@ -3,6 +3,7 @@
 #include <string>
 
 //creates a type for all the tokens
+//ChatGPT wrote lines 7 - 154 originally, I added to the structures of the types
 enum TokenType {
   TK_EOF,
   TK_INT,
@@ -25,6 +26,7 @@ enum TokenType {
 };
 
 //structures the type
+// I added the value word and position to this type, in order to keep track of the position of the elements
 struct Token {
   TokenType type;
   std::string value;
@@ -163,14 +165,16 @@ class Lexer {
   int pos_ = 0;
 };
 
-void lexer() {
-std::string input = "{} int a  = a $";
+void lexer(std::string input, int line) {
+std::vector<Token> tokens;
 Lexer lexer(input);
 Token token;
+
 do {
     token = lexer.GetNextToken();
-    std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << token.position <<std::endl;
-}     while (token.type != TK_EOF);
+    tokens.push_back(token);
+    std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << line << ":" <<token.position <<std::endl;
+    } while (token.type != TK_EOF);
 
 }
 
