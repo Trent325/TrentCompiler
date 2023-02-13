@@ -1,1 +1,5 @@
-string a = "aasasas123++" int a = 312 $
+{/* Comment!!!*/ ()
+print=whileif"teststring"
+intstringbooleanfalse
+true
+==!=+ a 0123456789}$

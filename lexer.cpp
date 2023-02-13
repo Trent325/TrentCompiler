@@ -29,7 +29,8 @@ enum TokenType {
   TK_QUOTE,
   TK_PLUS,
   TK_WARNING, 
-  TK_ERROR
+  TK_ERROR,
+  TK_SPACE
 };
 
 //structures the type
@@ -47,16 +48,29 @@ class Lexer {
   explicit Lexer(const std::string& input) : input_(input) {}
   
   int OpenQuoteFlag = 2;
-//Do I need to go back and track these?
+
   Token GetNextToken() {
     
-    SkipWhitespace();
+    //SkipWhitespace();
+
+    if(input_[pos_] == ' '){
+      if(OpenQuoteFlag %2 == 0){
+        pos_++;
+      }
+      else{
+        std::string value = input_.substr(pos_,pos_+1);
+        char first_char = value[0];
+        std::string s(1, first_char);
+        ++pos_;
+        return Token{TK_SPACE, s,"SPACE",pos_};
+
+      }
+    }
 
     if (input_[pos_] == '{') {
       ++pos_;
       return Token{TK_OPEN_BRACE, "{","OPEN BLOCK", pos_};
     }
-
     if (input_[pos_] == '}') {
       ++pos_;
       return Token{TK_CLOSE_BRACE, "}","CLOSEBLOCK", pos_};
@@ -134,8 +148,7 @@ class Lexer {
       else{
         ++pos_;
         return Token{TK_CHAR, s,"CHAR",pos_};
-      }
-      
+      } 
     }
 
     if (isalpha(input_[pos_])) {
@@ -178,17 +191,15 @@ class Lexer {
       else{
         pos_ = start;
         ++pos_;
-        char first_char = value[0];
+        char first_char = value[0]; // add a check to see if value contains any of the accepted strings
         std::string s(1, first_char);
         if(OpenQuoteFlag % 2 == 0){
           return Token{TK_ID, s,"ID", pos_};
         }
         else{
           return Token{TK_CHAR,s,"CHAR",pos_};
-        }
-        
-      }
-      
+        } 
+      } 
     }
 
     if (input_[pos_] == '"') {
