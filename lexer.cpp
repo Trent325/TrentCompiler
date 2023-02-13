@@ -25,6 +25,8 @@ enum TokenType {
   TK_FALSE,
   TK_NOT_EQUAL,
   TK_EQUAL,
+  TK_CHAR,
+  TK_QUOTE,
   TK_PLUS,
   TK_WARNING, 
   TK_ERROR
@@ -43,9 +45,11 @@ struct Token {
 class Lexer {
  public:
   explicit Lexer(const std::string& input) : input_(input) {}
-
+  
+  int OpenQuoteFlag = 2;
 //Do I need to go back and track these?
   Token GetNextToken() {
+    
     SkipWhitespace();
 
     if (input_[pos_] == '{') {
@@ -85,8 +89,14 @@ class Lexer {
     }
 
     if (input_[pos_] == '+') {
-      ++pos_;
-      return Token{TK_PLUS, "+","PLUS SIGN", pos_};
+      if(OpenQuoteFlag % 2 == 0){
+        ++pos_;
+        return Token{TK_PLUS, "+","PLUS SIGN", pos_};
+      }
+      else{
+        ++pos_;
+        return Token{TK_ERROR, "Invalid Character inside quotes","ERROR", pos_};
+      }
     }
 
     if (input_[pos_] == '=') {
@@ -114,11 +124,18 @@ class Lexer {
     }
 
     if (isdigit(input_[pos_])) {
-      int start = pos_;
-      while (isdigit(input_[pos_])) {
-        ++pos_;
+      std::string value = input_.substr(pos_,pos_+1);
+      char first_char = value[0];
+      std::string s(1, first_char);
+      if(OpenQuoteFlag % 2 == 0){
+          ++pos_;
+          return Token{TK_INT, s,"DIGIT", pos_};
       }
-      return Token{TK_INT, input_.substr(start, pos_ - start),"DIGIT", pos_};
+      else{
+        ++pos_;
+        return Token{TK_CHAR, s,"CHAR",pos_};
+      }
+      
     }
 
     if (isalpha(input_[pos_])) {
@@ -163,19 +180,21 @@ class Lexer {
         ++pos_;
         char first_char = value[0];
         std::string s(1, first_char);
-        return Token{TK_ID, s,"ID", pos_};
+        if(OpenQuoteFlag % 2 == 0){
+          return Token{TK_ID, s,"ID", pos_};
+        }
+        else{
+          return Token{TK_CHAR,s,"CHAR",pos_};
+        }
+        
       }
       
     }
 
     if (input_[pos_] == '"') {
+      OpenQuoteFlag++;
       ++pos_;
-      int start = pos_;
-      while (input_[pos_] != '"') {
-        ++pos_;
-      }
-      ++pos_;
-      return Token{TK_STRING, input_.substr(start, pos_ - start - 1)};
+      return Token{TK_QUOTE, "\"", "QUOTE", pos_};
     }
 
     if (!isdigit(input_[pos_]) && !isalpha(input_[pos_])) { // I had to create this function as ChatGPT could not catch errors of unknown symbols (it knows too much to find unknown)

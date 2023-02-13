@@ -1,1 +1,1 @@
-string a = "aasasas" $
+string a = "aasasas123++" int a = 312 $
