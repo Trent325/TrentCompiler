@@ -31,7 +31,8 @@ int countErrors(const std::vector<Token> tokens) {
 int main() {
     
     string filename;
-    cout << "Enter the name of the text file: ";
+    cout << "Welcome to the TRENTPILER: "<< "\n";
+    cout << "Enter the name of the text file you would like to pass to the TRENTPILER: ";
     cin >> filename;
 
     ifstream file(filename);

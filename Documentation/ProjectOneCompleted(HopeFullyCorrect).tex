@@ -1,0 +1,22 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{ProjectOneCompleted(HopefullyCorrectly)}
+\author{Trent Green}
+\date{Commit Number 4}
+
+\begin{document}
+
+\maketitle
+
+\section{What I had to do}
+In order to get to this part of the my project I had to do a few things. I added error detect by assigning unfit characters their own error token. I also included warnings by searching for unterminated comments as well. One thing I was unsure about for this implementation was what to do with an unterminated comment. I just went to the end of the program and checked for a dollar sign to see if there would be another warning id have to record. I also changed my lexer function to have a return of a vector. This vector is all the tokens from a specific line. I figured I'd ask ChatGPT to make a function to add vectors together ( the search can be found as a screenshot in the directory of this file ). I used this function to make a list of the tokens in a given text file passed to the lexer.
+
+\section{References for this project}
+https://bytes.usc.edu/cs104/wiki/gcc/ https://bytes.usc.edu/cs104/wiki/makefile/ @misc{brown2020language, title={Language Models are Few-Shot Learners}, author={Tom B. Brown and Benjamin Mann and Nick Ryder and Melanie Subbiah and Jared Kaplan and Prafulla Dhariwal and Arvind Neelakantan and Pranav Shyam and Girish Sastry and Amanda Askell and Sandhya Prabhakaran and Ariel Herbert-Voss and Gretchen Krueger and Tom Henighan and Rewon Child and Aditya Ramesh and Daniel M. Ziegler and Jeffrey Wu and Clemens Winter and Christopher Hesse and Mark Chen and Eric Sigler and Mateusz Litwin and Jasmine Wang and Alec Radford and Ilya Sutskever}, year={2020}, eprint={2005.14165}, archivePrefix={arXiv}, primaryClass={cs.CL} }
+
+Above are links to websites I used through out this project to learn more about C++ and Make files, and as well as an ACM reference for ChatGPT.
+
+\section{Reflections}
+Overall I think I did well on this assignment. I hope that I have handled the errors and warning correctly and sited my resources properly. Looking forward to getting feedback and seeing how I did. 
+\end{document}

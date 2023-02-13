@@ -24,6 +24,7 @@ enum TokenType {
   TK_NOT_EQUAL,
   TK_EQUAL,
   TK_PLUS,
+  TK_WARNING, 
   TK_ERROR
 };
 
@@ -54,20 +55,23 @@ class Lexer {
       ++pos_;
       return Token{TK_CLOSE_BRACE, "}","CLOSEBLOCK", pos_};
     }
-
-     if (input_[pos_] == '/') { // I had to add the comment function as chatGPT did not do so correctly ever
+  // I had to write this as GPT was useless here
+     if (input_[pos_] == '/') {
       if (input_[pos_ + 1] == '*') {
         ++pos_;
         ++pos_;
         int start = pos_;
-        while (!(input_[pos_] == '*' && input_[pos_ + 1] == '/')) {
+        while (!(input_[pos_] == '*' && input_[pos_ + 1] == '/') && pos_ < input_.length()) {
           ++pos_;
         }
+        if (pos_ >= input_.length()) {
+          pos_ = input_.length()-1; //checks for terminating character after bad comment block
+          return Token{TK_WARNING, "Unterminated comment block","WARNING", pos_};
+        }
         pos_ += 2;
-        return Token{TK_COMMENT, input_.substr(start, pos_ - start - 2), "COMMENT", start};
+        return Token{TK_COMMENT, " ","COMMENT", pos_};
       }
     }
-
     if (input_[pos_] == '(') {
       ++pos_;
       return Token{TK_OPEN_PAREN, "(","OPENPAREN", pos_};

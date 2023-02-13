@@ -1,4 +1,4 @@
-Welcome To Trents Compiler for CMPT 432 in the Spring of 2023. I will be making my compiler in C++. I will soon add in ridiculous detail how to build and deploy my code.
+Welcome To Trents Compiler for CMPT 432 in the Spring of 2023. I will be making my compiler in C++. Here is in ridiculous detail how to build and deploy my code.
 
 I will be using a make file for my compiler. This allows for the typing of only one command in order to create an executable version of the compiler.
 There are 3 functions that the make file allows for, building, running and cleaning. Running the build command will allow for the project to be built.
@@ -19,6 +19,8 @@ In order to clean the compiler:
 
 I had an issue with the default windows compiler so I downloaded the mingw32 compiler 
 In order to use it on windows you have to type mingw32 before using the command 
+
+After building the project, run the run command and follow the instructions prompted to you in the CLI or your choice. You will be instructed to enter a file which contains your programs to be lexed. The lexer will start lexing and return output in the terminal!
 
 In order to create my make file I used the following references
 
