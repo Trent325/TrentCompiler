@@ -51,11 +51,11 @@ class Lexer {
 
   Token GetNextToken() {
     
-    //SkipWhitespace();
+    
 
     if(input_[pos_] == ' '){
       if(OpenQuoteFlag %2 == 0){
-        pos_++;
+        SkipWhitespace();
       }
       else{
         std::string value = input_.substr(pos_,pos_+1);
