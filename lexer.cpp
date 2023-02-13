@@ -16,6 +16,7 @@ enum TokenType {
   TK_CLOSE_BRACE,
   TK_OPEN_PAREN,
   TK_CLOSE_PAREN,
+  TK_COMMENT,
   TK_WHILE,
   TK_IF,
   TK_TRUE,
@@ -23,6 +24,7 @@ enum TokenType {
   TK_NOT_EQUAL,
   TK_EQUAL,
   TK_PLUS,
+  TK_ERROR
 };
 
 //structures the type
@@ -51,6 +53,19 @@ class Lexer {
     if (input_[pos_] == '}') {
       ++pos_;
       return Token{TK_CLOSE_BRACE, "}","CLOSEBLOCK", pos_};
+    }
+
+     if (input_[pos_] == '/') { // I had to add the comment function as chatGPT did not do so correctly ever
+      if (input_[pos_ + 1] == '*') {
+        ++pos_;
+        ++pos_;
+        int start = pos_;
+        while (!(input_[pos_] == '*' && input_[pos_ + 1] == '/')) {
+          ++pos_;
+        }
+        pos_ += 2;
+        return Token{TK_COMMENT, input_.substr(start, pos_ - start - 2), "COMMENT", start};
+      }
     }
 
     if (input_[pos_] == '(') {
@@ -151,7 +166,11 @@ class Lexer {
       return Token{TK_STRING, input_.substr(start, pos_ - start - 1)};
     }
 
-    
+    if (!isdigit(input_[pos_]) && !isalpha(input_[pos_])) { // I had to create this function as ChatGPT could not catch errors of unknown symbols (it knows too much to find unknown)
+      int start = pos_;
+      ++pos_;
+      return Token{TK_ERROR, input_.substr(start, pos_ - start), "ERROR UNRECOGNIZED TOKEN", start};
+    }
   }
 
  private:
@@ -164,8 +183,8 @@ class Lexer {
   std::string input_;
   int pos_ = 0;
 };
-
-void lexer(std::string input, int line) {
+// I created all of this until the end of the file
+std::vector<Token> lexer(std::string input, int line) {
 std::vector<Token> tokens;
 Lexer lexer(input);
 Token token;
@@ -174,8 +193,11 @@ do {
     token = lexer.GetNextToken();
     tokens.push_back(token);
     std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << line << ":" <<token.position <<std::endl;
+    if(token.position >= input.length()){
+      break;
+      }
     } while (token.type != TK_EOF);
-
+return tokens;
 }
 
 
