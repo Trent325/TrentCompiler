@@ -1,5 +1,5 @@
 {/* Comment!!!*/ ()
 print=ifint"teststring"
-intstringbooleanfalse
+intstringtruebooleanfalse
 true
-==!=+ a 0123456789}$
+$

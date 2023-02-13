@@ -158,65 +158,132 @@ class Lexer {
       }
       int duration = pos_ - start;
       std::string value = input_.substr(start, pos_ - start);
-      if (value == "print") {
+
+      if(OpenQuoteFlag %2 == 0){
+        if (value == "print") {
         return Token{TK_PRINT, "print","PRINT", pos_};
-      }
+        }
 
-      if (value == "int") {
-        return Token{TK_ITYPE, "int","TYPE", pos_};
-      }
+        if (value == "int") {
+          return Token{TK_ITYPE, "int","TYPE", pos_};
+        }
 
-      if (value == "string") {
-        return Token{TK_STYPE, "string","TYPE", pos_};
-      }
+        if (value == "string") {
+          return Token{TK_STYPE, "string","TYPE", pos_};
+        }
 
-      if (value == "boolean") {
-        return Token{TK_BTYPE, "boolean","TYPE", pos_};
-      }
+        if (value == "boolean") {
+          return Token{TK_BTYPE, "boolean","TYPE", pos_};
+        }
 
-      if (value == "while") {
-        return Token{TK_WHILE, "while","WHILE STATEMENT", pos_};
-      }
+        if (value == "while") {
+          return Token{TK_WHILE, "while","WHILE STATEMENT", pos_};
+        }
 
-      if (value == "if") {
-        return Token{TK_IF, "if","IF STATEMENT", pos_};
-      }
+        if (value == "if") {
+          return Token{TK_IF, "if","IF STATEMENT", pos_};
+        }
 
-      if (value == "true") {
-        return Token{TK_TRUE, "true","TRUE ", pos_};
-      }
+        if (value == "true") {
+          return Token{TK_TRUE, "true","TRUE ", pos_};
+        }
 
-      if (value == "false") {
-        return Token{TK_FALSE, "false","FALSE", pos_};
-      }
-      else{
-        pos_ = start;
-        char first_char = value[0]; // add a check to see if value contains any of the accepted strings
-        std::string s(1, first_char);
-        if(OpenQuoteFlag % 2 == 0){
-          if(duration = 2){
-            if(value.substr(0,2) == "if"){
-              pos_++;
-              pos_++;
-              return Token{TK_IF, "if","IF STATEMENT", pos_};
-            }
-          }
-          if(duration >= 3){
-            if(value.substr(0,3) == "int"){
-              pos_++;
-              pos_++;
-              pos_++;
-              return Token{TK_ITYPE, "int","TYPE", pos_};
-            }
-          }
-          ++pos_;
-          return Token{TK_ID, s,"ID", pos_};
+        if (value == "false") {
+          return Token{TK_FALSE, "false","FALSE", pos_};
         }
         else{
+          pos_ = start;
+          char first_char = value[0]; // add a check to see if value contains any of the accepted strings
+          std::string s(1, first_char);
+          if(OpenQuoteFlag % 2 == 0){
+            if(duration >= 2){
+              if(value.substr(0,2) == "if"){
+                pos_++;
+                pos_++;
+                return Token{TK_IF, "if","IF STATEMENT", pos_};
+              }
+            }
+            if(duration >= 3){
+              if(value.substr(0,3) == "int"){
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_ITYPE, "int","TYPE", pos_};
+              }
+            }
+            if(duration >= 4){
+              if(value.substr(0,4) == "true"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_TRUE, "true","TRUE ", pos_};
+              }
+            }
+            if(duration >= 5){
+              if(value.substr(0,5) == "false"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_FALSE, "false","FALSE", pos_};
+              }
+              if(value.substr(0,5) == "print"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_PRINT, "print","PRINT", pos_};
+              }
+              if(value.substr(0,5) == "while"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_WHILE, "while","WHILE STATEMENT", pos_};
+              }
+            }
+            if(duration >= 6){
+              if(value.substr(0,6) == "string"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_STYPE, "string","TYPE", pos_};
+              }
+            }
+            if(duration >= 7){
+              if(value.substr(0,7) == "boolean"){
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                pos_++;
+                return Token{TK_BTYPE, "boolean","TYPE", pos_};
+              }
+            }
+            
+            ++pos_;
+            return Token{TK_ID, s,"ID", pos_};
+            }
+          } 
+
+      }
+      else{
+          pos_ = start;
+          char first_char = value[0]; // add a check to see if value contains any of the accepted strings
+          std::string s(1, first_char);
           ++pos_;
           return Token{TK_CHAR,s,"CHAR",pos_};
         } 
-      } 
+      
     }
 
     if (input_[pos_] == '"') {
