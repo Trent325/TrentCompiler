@@ -9,7 +9,9 @@ enum TokenType {
   TK_INT,
   TK_STRING,
   TK_ID,
-  TK_TYPE,
+  TK_BTYPE,
+  TK_ITYPE,
+  TK_STYPE,
   TK_PRINT,
   TK_ASSIGN,
   TK_OPEN_BRACE,
@@ -125,20 +127,20 @@ class Lexer {
         ++pos_;
       }
       std::string value = input_.substr(start, pos_ - start);
-            if (value == "print") {
+      if (value == "print") {
         return Token{TK_PRINT, "print","PRINT", pos_};
       }
 
       if (value == "int") {
-        return Token{TK_TYPE, "int","TYPE", pos_};
+        return Token{TK_ITYPE, "int","TYPE", pos_};
       }
 
       if (value == "string") {
-        return Token{TK_TYPE, "string","TYPE", pos_};
+        return Token{TK_STYPE, "string","TYPE", pos_};
       }
 
       if (value == "boolean") {
-        return Token{TK_TYPE, "boolean","TYPE", pos_};
+        return Token{TK_BTYPE, "boolean","TYPE", pos_};
       }
 
       if (value == "while") {
@@ -156,8 +158,14 @@ class Lexer {
       if (value == "false") {
         return Token{TK_FALSE, "false","FALSE", pos_};
       }
-
-      return Token{TK_ID, value,"ID", pos_};
+      else{
+        pos_ = start;
+        ++pos_;
+        char first_char = value[0];
+        std::string s(1, first_char);
+        return Token{TK_ID, s,"ID", pos_};
+      }
+      
     }
 
     if (input_[pos_] == '"') {
@@ -196,7 +204,9 @@ Token token;
 do {
     token = lexer.GetNextToken();
     tokens.push_back(token);
-    std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << line << ":" <<token.position <<std::endl;
+    if(token.type != TK_COMMENT){
+      std::cout << "DEBUG LEXER - "<< token.word << " [ " << token.value << " ] " << "found at " << line << ":" <<token.position <<std::endl;
+    }
     if(token.position >= input.length()){
       break;
       }

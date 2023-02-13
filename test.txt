@@ -1,11 +1,1 @@
-{}$
-{{{{{{}}}}}}$
-{{{{{{}}} /* comments are ignored  }}}}$
-{ /* comments are still ignored */ int @}$
-{
- int a
- a = a
- string b
- a = b
-}
-$
+string a = "aasasas" $
