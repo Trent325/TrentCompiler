@@ -27,6 +27,15 @@ int countErrors(const std::vector<Token> tokens) {
   }
   return error_count;
 }
+int countWarning(const std::vector<Token> tokens) {
+  int warningCount = 0;
+  for (const auto& token : tokens) {
+    if(token.type == TK_WARNING){
+        ++warningCount;
+    }
+  }
+  return warningCount;
+}
 //I wrote all of this file
 int main() {
     
@@ -57,9 +66,18 @@ int main() {
         UNlexedTokens = ProgramTokens;
         if (line.find("$") != string::npos) {
             int errors = countErrors(ProgramTokens);
-            cout << "INFO LEXER COMPLETED WITH " << errors <<" ERRORS"<< endl;
+            int warnings = countWarning(ProgramTokens);
+            if(errors == 0){
+            cout << "INFO LEXER COMPLETED WITH " << errors <<" ERRORS AND "<< warnings <<" WARNINGS"<< endl;
             ProgramCount++;
             lexedTokens = addVectors(lexedTokens, ProgramTokens);
+            }
+            else{
+                cout << "INFO LEXER FAIL WITH " << errors <<" ERRORS AND "<< warnings <<" WARNINGS"<<endl;
+                ProgramCount++;
+                lexedTokens = addVectors(lexedTokens, ProgramTokens);
+
+            }
         }
         lineCount++;
         

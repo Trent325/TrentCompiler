@@ -51,8 +51,6 @@ class Lexer {
 
   Token GetNextToken() {
     
-    
-
     if(input_[pos_] == ' '){
       if(OpenQuoteFlag %2 == 0){
         SkipWhitespace();
@@ -63,7 +61,6 @@ class Lexer {
         std::string s(1, first_char);
         ++pos_;
         return Token{TK_SPACE, s,"SPACE",pos_};
-
       }
     }
 
