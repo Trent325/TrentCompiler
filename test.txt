@@ -1,5 +1,5 @@
 {/* Comment!!!*/ ()
-print=whileif"teststring"
+print=ifint"teststring"
 intstringbooleanfalse
 true
 ==!=+ a 0123456789}$

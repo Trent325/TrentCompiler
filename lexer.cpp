@@ -156,6 +156,7 @@ class Lexer {
       while (isalpha(input_[pos_])) {
         ++pos_;
       }
+      int duration = pos_ - start;
       std::string value = input_.substr(start, pos_ - start);
       if (value == "print") {
         return Token{TK_PRINT, "print","PRINT", pos_};
@@ -190,13 +191,29 @@ class Lexer {
       }
       else{
         pos_ = start;
-        ++pos_;
         char first_char = value[0]; // add a check to see if value contains any of the accepted strings
         std::string s(1, first_char);
         if(OpenQuoteFlag % 2 == 0){
+          if(duration = 2){
+            if(value.substr(0,2) == "if"){
+              pos_++;
+              pos_++;
+              return Token{TK_IF, "if","IF STATEMENT", pos_};
+            }
+          }
+          if(duration >= 3){
+            if(value.substr(0,3) == "int"){
+              pos_++;
+              pos_++;
+              pos_++;
+              return Token{TK_ITYPE, "int","TYPE", pos_};
+            }
+          }
+          ++pos_;
           return Token{TK_ID, s,"ID", pos_};
         }
         else{
+          ++pos_;
           return Token{TK_CHAR,s,"CHAR",pos_};
         } 
       } 
