@@ -37,18 +37,23 @@ int countWarning(const std::vector<Token> tokens) {
   return warningCount;
 }
 //I wrote all of this file
-int main() {
-    
-    string filename;
-    cout << "Welcome to the TRENTPILER: "<< "\n";
-    cout << "Enter the name of the text file you would like to pass to the TRENTPILER: ";
-    cin >> filename;
+int main(int argc, char* argv[]) {
+  if (argc < 2) {
+    std::cerr << "Error: No input file specified." << std::endl;
+    return 1;
+  }
 
-    ifstream file(filename);
-    if (!file.is_open()) {
-        cout << "Error: unable to open file" << endl;
-        return 1;
-    }
+  std::ifstream input_file(argv[1]);
+  if (!input_file) {
+    std::cerr << "Error: Could not open input file." << std::endl;
+    return 1;
+  }
+    
+    
+    cout << "Welcome to the TRENTPILER: "<< "\n";
+    
+
+    
 
     int lineCount = 1;
     int ProgramCount = 1;
@@ -56,7 +61,7 @@ int main() {
     string line;
     std::vector<Token> UNlexedTokens;
     std::vector<Token> lexedTokens;
-    while (getline(file, line)) {
+    while (getline(input_file, line)) {
         if(ProgramCount != ProgramCountPrev){
             cout << "INFO LEXER STARTED ON PROGRAM " << ProgramCount << endl;
             ProgramCountPrev = ProgramCount;
@@ -86,7 +91,6 @@ int main() {
     if (last_element.value != "$"){
         std::cout << "INFO WARNING NO EOF or $ FOUND TO TERMINATE PROGRAM" <<  std::endl;
     }
-    
     return 0;
     }
 

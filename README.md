@@ -20,7 +20,7 @@ In order to clean the compiler:
 I had an issue with the default windows compiler so I downloaded the mingw32 compiler 
 In order to use it on windows you have to type mingw32 before using the command 
 
-After building the project, run the run command and follow the instructions prompted to you in the CLI or your choice. You will be instructed to enter a file which contains your programs to be lexed. The lexer will start lexing and return output in the terminal!
+After building the project, you can use the command "./compiler input.txt" to run the project with a filename (that is in the same directory as compiler.cpp) with it as an input file
 
 In order to create my make file I used the following references
 

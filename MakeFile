@@ -16,3 +16,4 @@ run: $(EXECUTABLE)
 
 clean:
 	rm -rf *.o $(EXECUTABLE)
+
