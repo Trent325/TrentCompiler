@@ -1,98 +1,128 @@
+#include <fstream> 
 #include <iostream>
-#include "lexer.cpp" //imports the lexer from the file lexer
-#include <iostream>
-#include <fstream>
-#include <string>
+#include <sstream> 
 #include <vector>
-#include <algorithm>
+#include "lexer.cpp" 
 
 using namespace std;
-//Function ChatGPT created to add two vectors together
-std::vector<Token> addVectors(std::vector<Token> &a, std::vector<Token> &b) {
-    std::vector<Token> result;
 
-    result.reserve(a.size() + b.size());
-    result.insert(result.end(), a.begin(), a.end());
-    result.insert(result.end(), b.begin(), b.end());
+// create a to String to print out Tokens
+string TokenTypeToString(TokenType type) {
+    switch(type) {
+        case TokenType::TK_OPEN_PAREN: return "LEFT_PAREN";
+        case TokenType::TK_CLOSE_PAREN: return "RIGHT_PAREN";
+        case TokenType::TK_OPEN_BRACE: return "LEFT_BRACE";
+        case TokenType::TK_CLOSE_BRACE: return "RIGHT_BRACE";
+        case TokenType::TK_EOF: return "END OF PROGRAM";
+        case TokenType::TK_DIGIT: return "DIGIT";
+        case TokenType::TK_EQUAL: return "EQUALS";
+        case TokenType::TK_INT: return "INT";
+        case TokenType::TK_STRING: return "STRING";
+        case TokenType::TK_ID: return "IDENTIFIER";
+        case TokenType::TK_BTYPE: return "BASIC TYPE";
+        case TokenType::TK_I_TYPE: return "INTEGER TYPE";
+        case TokenType::TK_S_TYPE: return "STRING TYPE";
+        case TokenType::TK_PRINT: return "PRINT";
+        case TokenType::TK_ASSIGN: return "ASSIGN";
+        case TokenType::TK_COMMENT: return "COMMENT";
+        case TokenType::TK_WHILE: return "WHILE";
+        case TokenType::TK_IF: return "IF";
+        case TokenType::TK_TRUE: return "BOOLEAN TRUE";
+        case TokenType::TK_FALSE: return "BOOLEAN FALSE";
+        case TokenType::TK_NOT_EQUAL: return "NOT EQUAL";
+        case TokenType::TK_CHAR: return "CHARACTER";
+        case TokenType::TK_QUOTE: return "QUOTE";
+        case TokenType::TK_PLUS: return "PLUS";
+        case TokenType::TK_WARNING: return "WARNING";
+        case TokenType::TK_ERROR: return "ERROR";
+        case TokenType::TK_MULTLN_STRING: return " ";
+        case TokenType::TK_INVALID_STRING_CHAR: return " ";
+        case TokenType::TK_SPACE: return "SPACE";
+        case TokenType::TK_B_TYPE: return "BOOLEAN";
+        default: return "UNKNOWN";
+    }
+}
 
-    return result;
-}
-//Function I created to track errors of the program
-int countErrors(const std::vector<Token> tokens) {
-  int error_count = 0;
-  for (const auto& token : tokens) {
-    if (token.type == TK_ERROR) {
-      ++error_count;
+// My method to print out tokens
+void printToken(const Token& token) {
+    if(token.type == TokenType::TK_ERROR){
+        cout << "INFO LEXER - " << TokenTypeToString(token.type) ;
+        cout << " [ " << token.lexeme << " ] " ;
+        cout << " UNRECOGNIZED TOKEN @  " << token.line ;
+        cout << " : " << token.position << endl;
+    } 
+    else if(token.type == TokenType::TK_MULTLN_STRING){
+        cout << "INFO LEXER - " << " ERROR MULTI LINE STRING  ";
+        cout << " [ " << token.lexeme << " ] " ;
+        cout << TokenTypeToString(token.type)  << token.line ;
+        cout << " : " << token.position << endl;
     }
-  }
-  return error_count;
-}
-int countWarning(const std::vector<Token> tokens) {
-  int warningCount = 0;
-  for (const auto& token : tokens) {
-    if(token.type == TK_WARNING){
-        ++warningCount;
+    else if(token.type == TokenType::TK_INVALID_STRING_CHAR){
+        cout << "INFO LEXER - " << " ERROR INVALID STRING CHARACTER  ";
+        cout << " [ " << token.lexeme << " ] " ;
+        cout << TokenTypeToString(token.type)  << token.line ;
+        cout << " : " << token.position << endl;
+    }else {
+        cout << "DEBUG LEXER - " << TokenTypeToString(token.type) ;
+        cout << " [ " << token.lexeme << " ] " ;
+        cout << " Found at  " << token.line ;
+        cout << " : " << token.position << endl;
     }
-  }
-  return warningCount;
 }
-//I wrote all of this file
+
 int main(int argc, char* argv[]) {
-  if (argc < 2) {
-    std::cerr << "Error: No input file specified." << std::endl;
-    return 1;
-  }
-
-  std::ifstream input_file(argv[1]);
-  if (!input_file) {
-    std::cerr << "Error: Could not open input file." << std::endl;
-    return 1;
-  }
-    
-    
-    cout << "Welcome to the TRENTPILER: "<< "\n";
-    
-
-    
-
-    int lineCount = 1;
-    int ProgramCount = 1;
-    int ProgramCountPrev = 0;
-    string line;
-    std::vector<Token> UNlexedTokens;
-    std::vector<Token> lexedTokens;
-    while (getline(input_file, line)) {
-        if(ProgramCount != ProgramCountPrev){
-            cout << "INFO LEXER STARTED ON PROGRAM " << ProgramCount << endl;
-            ProgramCountPrev = ProgramCount;
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <input_file>\n";
+        return 1;
+    }
+    std::ifstream input_file(argv[1]);
+    if (!input_file) {
+        std::cerr << "Failed to open file: " << argv[1] << '\n';
+        return 1;
+    }
+    // Read the entire contents of the file into a string
+    std::stringstream buffer;
+    buffer << input_file.rdbuf();
+    std::string source = buffer.str();
+    // Create a lexer object and tokenize the input
+    Lexer lexer(source);
+    std::vector<Token> tokens = lexer.tokenize();
+    // Create a Count for Programs
+    int programCount = 1;
+    // Init message
+    cout << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
+    int Warnings = 0;
+    int Errors = 0;
+    // iterate over each element in the vector
+    for (int i = 0; i < tokens.size(); i++) {
+        // If the token is a warning increase the count 
+        if (tokens[i].type == TokenType::TK_WARNING) {
+            Warnings++;
         }
-        std::vector<Token> temp = lexer(line, lineCount);
-        std::vector<Token> ProgramTokens = addVectors(ProgramTokens, temp);
-        UNlexedTokens = ProgramTokens;
-        if (line.find("$") != string::npos) {
-            int errors = countErrors(ProgramTokens);
-            int warnings = countWarning(ProgramTokens);
-            if(errors == 0){
-            cout << "INFO LEXER COMPLETED WITH " << errors <<" ERRORS AND "<< warnings <<" WARNINGS"<< endl;
-            ProgramCount++;
-            lexedTokens = addVectors(lexedTokens, ProgramTokens);
+        // If the token is an error  increase the count
+        if (tokens[i].type == TokenType::TK_ERROR || 
+                tokens[i].type == TokenType::TK_MULTLN_STRING || 
+                    tokens[i].type == TokenType::TK_INVALID_STRING_CHAR) {
+            Errors++;
+        }
+        // print tokens
+        printToken(tokens[i]);
+        //If a program ended increment the PC and output
+        if (tokens[i].type == TokenType::TK_EOF) {
+            if(i == tokens.size()-1){
+                // do nothing
             }
             else{
-                cout << "INFO LEXER FAIL WITH " << errors <<" ERRORS AND "<< warnings <<" WARNINGS"<<endl;
-                ProgramCount++;
-                lexedTokens = addVectors(lexedTokens, ProgramTokens);
-
+                programCount++;
+                cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
             }
-        }
-        lineCount++;
-        
+         } 
     }
-    Token last_element = UNlexedTokens[UNlexedTokens.size() - 1];
-    if (last_element.value != "$"){
-        std::cout << "INFO WARNING NO EOF or $ FOUND TO TERMINATE PROGRAM" <<  std::endl;
+    // if there is an Error the Lexer needs to fail
+    if(Errors != 0){
+        cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
+    } else {
+        cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
     }
     return 0;
-    }
-
-
-
+}

@@ -1,0 +1,3 @@
+I was not to happy with the lexer I previously constructed so prior to making 
+my parsers I decided to remake the lexer. I did so with a switch and case and 
+I used the same ENUM from my last project. 
