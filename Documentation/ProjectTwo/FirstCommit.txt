@@ -1,0 +1,16 @@
+I am a huge fan of chatGPT if you cannot tell already and I decide that I wanted to push it's limits.
+
+After redoing my lexer I wanted to see if chatGPT would understand it, so I asked it to familiarize itself with my lexer.
+(find the included screenshot "GivingGPTLexer.PNG)
+
+I wanted to see if it could write me a recursive descent parser based on my lexer file.
+(find the attached screenshot AskingGPT.PNG)
+
+I was amazed to see the results, It was not correct but it was a great start. The most bizzare thing was
+that it copied my style of code from my lexer! It did not have comments but it names varaibles and functions
+in a manner that acts as comments (I am also in MSCS 510 learning about Style (extremely important)). So code
+that is organized and easy to work with is something that I recently realized is the only code I want to view.
+(hence redoing my first ugly lexer).
+
+So the entire parser.cpp in this commit was written by chatgpt it has errors but it is a great starting point.
+I decided to put this message in as I will not be commenting what GPT wrote in the file as it did it all.
