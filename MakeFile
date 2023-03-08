@@ -1,5 +1,5 @@
 CC=g++ 
-CFLAGS=-std=c++17 -c -Wall
+CFLAGS=-g -std=c++17 -c -Wall
 LINKERFLAGS=
 SOURCES=compiler.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
