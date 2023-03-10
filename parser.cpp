@@ -93,6 +93,7 @@ void Statement() {
 }
 
 void PrintStatement() {
+    cout << "PrintStatement" << endl;
     match(TokenType::TK_PRINT);
     match(TokenType::TK_OPEN_PAREN);
     Expr();
@@ -100,12 +101,16 @@ void PrintStatement() {
 }
 
 void AssignmentStatement() {
+    cout << "AssignmentStatement" << endl;
     Id();
     match(TokenType::TK_EQUAL);
     Expr();
 }
 // probably take in a token Type as the parameter and have logic to do the right one
 void VarDecl() {
+    cout << "VarDecl" << endl;
+    TokenType type = tokens[currentTokenIndex].type;
+    match(type);
     // TODO: this is going to take more than a simple match 
     // because we need to match any type and there are a few
     // match("type");
@@ -113,18 +118,21 @@ void VarDecl() {
 }
 
 void WhileStatement() {
+    cout << "WHILE STATEMENT" << endl;
     match(TokenType::TK_WHILE);
     BooleanExpr();
     Block();
 }
 
 void IfStatement() {
+    cout << "IF STATEMENT" << endl;
     match(TokenType::TK_IF);
     BooleanExpr();
     Block();
 }
 
 void Expr() {
+    cout << "EXPR" << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
         IntExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
@@ -137,6 +145,7 @@ void Expr() {
 }
 
 void IntExpr() {
+    cout << "INT EXPR" << endl;
     match(TokenType::TK_DIGIT);
     if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
         match(TokenType::TK_I_TYPE);
@@ -145,46 +154,32 @@ void IntExpr() {
 }
 
 void StringExpr() {
+    cout << "STRING EXPR" << endl;
     match(TokenType::TK_QUOTE);
     CharList();
     match(TokenType::TK_QUOTE);
 }
 
 void BooleanExpr() {
-    if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
-        match(TokenType::TK_OPEN_PAREN);
-        Expr();
-        // TODO: this is going to require more than a simple match
-        // because we need to match EQ, NEQ, etc.
-        // match("boolop");
-        Expr();
-        match(TokenType::TK_CLOSE_PAREN);
-    } else {
-        match(TokenType::TK_B_TYPE);
-    }
+    cout << "BOOLEAN EXPR" << endl;
+    match(TokenType::TK_OPEN_PAREN);
+    Expr();
+    //match() still gonna be hard 
+    Expr();
+    match(TokenType::TK_CLOSE_PAREN);
 }
 // to match ID
 void Id() {
+    cout << "ID" << endl;
     match(TokenType::TK_ID);
 }
 
-// do not think I need this
+// maybe I do need it?
 void CharList() {
-        if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
-            // Empty production
-            return;
-        }
-        // TODO: dupe?
-        if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
-            // Escape sequence
-            match(TokenType::TK_QUOTE);
-            // TODO: unsure if this is right type?
-            match(TokenType::TK_CHAR);
-            CharList();
-        } else {
-            // Normal character
-            // TODO: unsure if this is right type?
-            match(TokenType::TK_CHAR);
-            CharList();
-        }
+    if (tokens[currentTokenIndex].type == TokenType::TK_CHAR ||
+        tokens[currentTokenIndex].type == TokenType::TK_SPACE) {
+        match(tokens[currentTokenIndex].type);
+        CharList();
+    }
+    // else: empty production
 }
