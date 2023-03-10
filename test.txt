@@ -1,10 +1,1 @@
-{/* Comment!!!*/ ()
-print=whileif"teststring"
-intstringbooleanfalse
-true
-==!=+ a 0123456789}$
-{/* Comment!!!*/ ()
-print=whileif"teststring"
-intstringbooleanfalse
-true
-==!=+ a 0123456789}
+{}$

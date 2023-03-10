@@ -2,7 +2,8 @@
 #include <iostream>
 #include <sstream> 
 #include <vector>
-#include "lexer.cpp" 
+
+#include "parser.h" 
 
 using namespace std;
 
@@ -126,5 +127,6 @@ int main(int argc, char* argv[]) {
     }
 
     //ADD PARSER IMPLEMENTATION HERE
+    parse(tokens);
     return 0;
 }

@@ -1,7 +1,7 @@
-CC=g++ 
+CC=g++
 CFLAGS=-g -std=c++17 -c -Wall
 LINKERFLAGS=
-SOURCES=compiler.cpp
+SOURCES=compiler.cpp parser.cpp lexer.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=compiler
 
@@ -9,11 +9,11 @@ all: $(SOURCES) $(EXECUTABLE)
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LINKERFLAGS) $(OBJECTS) -o $@
 
-.cpp: 
+.cpp.o: 
 	$(CC) $(CFLAGS) $< -o $@
+	
 run: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 clean:
 	rm -rf *.o $(EXECUTABLE)
-

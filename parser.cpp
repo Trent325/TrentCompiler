@@ -1,158 +1,190 @@
-#include <iostream>
 #include <vector>
-#include <string>
 #include <stdexcept>
 
-#include "lexer.cpp" // assuming the lexer code is in a file called lexer.hpp
+#include "parser.h" 
 
 using namespace std;
 
-class Parser {
-public:
-    Parser(std::vector<Token>& tokens) : tokens(tokens), current(0) {}
+// Global variables
+vector<Token> tokens;
+int currentTokenIndex = 0;
 
-    void parse() {
-        program();
-        if (match(TokenType::TK_EOF)) {
-            cout << "Parsing complete!\n";
+// Forward declarations
+void match(string expectedType);
+void Program();
+void Block();
+void StatementList();
+void Statement();
+void PrintStatement();
+void AssignmentStatement();
+void VarDecl();
+void WhileStatement();
+void IfStatement();
+void Expr();
+void IntExpr();
+void StringExpr();
+void BooleanExpr();
+void Id();
+void CharList();
+
+// Main function to parse the input
+void parse(vector<Token> tokenStream) {
+    tokens = tokenStream;
+    cout << "\nPARSE" << endl;
+    // Start parsing with the Program non-terminal
+    Program();
+    // Check that all input has been consumed
+    if (currentTokenIndex != tokens.size() || tokens.back().type !=  TokenType::TK_EOF) {
+        throw runtime_error("Syntax error: unexpected token");
+    }
+}
+
+// Helper function to match the expected token type
+void match(TokenType type) {
+    if (currentTokenIndex >= tokens.size()) {
+        throw runtime_error("Syntax error: unexpected end of input");
+    }
+    if (tokens[currentTokenIndex].type != type) {
+        throw runtime_error("Syntax error: unexpected token");
+    }
+    // Advance to the next token
+    currentTokenIndex++;
+}
+
+// Non-terminal functions
+void Program() {
+    cout << "PROGRAM" << endl;
+    Block();
+    match(TokenType::TK_EOF);
+}
+
+void Block() {
+    cout << "BLOCK" << endl;
+    match(TokenType::TK_OPEN_BRACE);
+    StatementList();
+    match(TokenType::TK_CLOSE_BRACE);
+}
+
+void StatementList() {
+    cout << "STATEMENTLIST" << endl;
+    if (currentTokenIndex >= tokens.size() || tokens[currentTokenIndex].type == TokenType::TK_CLOSE_BRACE) {
+        // Empty production
+        return;
+    }
+    Statement();
+    StatementList();
+}
+
+void Statement() {
+    cout << "STATEMENT" << endl;
+    if (tokens[currentTokenIndex].type == TokenType::TK_PRINT) {
+        PrintStatement();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
+        VarDecl();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_WHILE) {
+        WhileStatement();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_IF) {
+        IfStatement();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_BRACE) {
+        Block();
+    } else {
+        AssignmentStatement();
+    }
+}
+
+void PrintStatement() {
+    match(TokenType::TK_PRINT);
+    match(TokenType::TK_OPEN_PAREN);
+    Expr();
+    match(TokenType::TK_CLOSE_PAREN);
+}
+
+void AssignmentStatement() {
+    Id();
+    match(TokenType::TK_EQUAL);
+    Expr();
+}
+// probably take in a token Type as the parameter and have logic to do the right one
+void VarDecl() {
+    // TODO: this is going to take more than a simple match 
+    // because we need to match any type and there are a few
+    // match("type");
+    Id();
+}
+
+void WhileStatement() {
+    match(TokenType::TK_WHILE);
+    BooleanExpr();
+    Block();
+}
+
+void IfStatement() {
+    match(TokenType::TK_IF);
+    BooleanExpr();
+    Block();
+}
+
+void Expr() {
+    if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
+        IntExpr();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
+        StringExpr();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
+        BooleanExpr();
+    } else {
+        Id();
+    }
+}
+
+void IntExpr() {
+    match(TokenType::TK_DIGIT);
+    if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
+        match(TokenType::TK_I_TYPE);
+        Expr();
+    }
+}
+
+void StringExpr() {
+    match(TokenType::TK_QUOTE);
+    CharList();
+    match(TokenType::TK_QUOTE);
+}
+
+void BooleanExpr() {
+    if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
+        match(TokenType::TK_OPEN_PAREN);
+        Expr();
+        // TODO: this is going to require more than a simple match
+        // because we need to match EQ, NEQ, etc.
+        // match("boolop");
+        Expr();
+        match(TokenType::TK_CLOSE_PAREN);
+    } else {
+        match(TokenType::TK_B_TYPE);
+    }
+}
+// to match ID
+void Id() {
+    match(TokenType::TK_ID);
+}
+
+// do not think I need this
+void CharList() {
+        if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
+            // Empty production
+            return;
+        }
+        // TODO: dupe?
+        if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
+            // Escape sequence
+            match(TokenType::TK_QUOTE);
+            // TODO: unsure if this is right type?
+            match(TokenType::TK_CHAR);
+            CharList();
         } else {
-            throw std::runtime_error("Expected end of file");
+            // Normal character
+            // TODO: unsure if this is right type?
+            match(TokenType::TK_CHAR);
+            CharList();
         }
-    }
-
-private:
-    std::vector<Token>& tokens;
-    int current;
-
-    void program() {
-        while (!is_at_end()) {
-            statement();
-        }
-    }
-
-    void statement() {
-        if (match(TokenType::TK_PRINT)) {
-            print_statement();
-            match(TokenType::TK_SEMICOLON);
-        } else if (match(TokenType::TK_ID)) {
-            assignment_statement();
-            match(TokenType::TK_SEMICOLON);
-        } else if (match(TokenType::TK_IF)) {
-            if_statement();
-        } else if (match(TokenType::TK_WHILE)) {
-            while_statement();
-        } else if (match(TokenType::TK_COMMENT)) {
-            // ignore comments
-        } else {
-            throw std::runtime_error("Expected statement");
-        }
-    }
-
-    void print_statement() {
-        expression();
-    }
-
-    void assignment_statement() {
-        // identifier = expression;
-        // parse identifier
-        string identifier = previous().lexeme;
-        // parse = sign
-        match(TokenType::TK_ASSIGN);
-        // parse expression
-        expression();
-        cout << "Assigning value to " << identifier << endl;
-    }
-
-    void if_statement() {
-        // if (expression) statement (else statement)?
-        if (match(TokenType::TK_OPEN_PAREN)) {
-            expression();
-            if (match(TokenType::TK_CLOSE_PAREN)) {
-                statement();
-                if (match(TokenType::TK_ELSE)) {
-                    statement();
-                }
-            } else {
-                throw std::runtime_error("Expected closing parenthesis");
-            }
-        } else {
-            throw std::runtime_error("Expected opening parenthesis");
-        }
-    }
-
-    void while_statement() {
-        // while (expression) statement
-        if (match(TokenType::TK_OPEN_PAREN)) {
-            expression();
-            if (match(TokenType::TK_CLOSE_PAREN)) {
-                statement();
-            } else {
-                throw std::runtime_error("Expected closing parenthesis");
-            }
-        } else {
-            throw std::runtime_error("Expected opening parenthesis");
-        }
-    }
-
-    void expression() {
-        // term (add_op term)*
-        term();
-        while (match(TokenType::TK_PLUS)) {
-            term();
-        }
-    }
-
-    void term() {
-        // factor (mult_op factor)*
-        factor();
-        while (match(TokenType::TK_MULT)) {
-            factor();
-        }
-    }
-
-    void factor() {
-        if (match(TokenType::TK_INT)) {
-            // do nothing, integer literals are already parsed by the lexer
-        } else if (match(TokenType::TK_ID)) {
-            // do nothing, identifiers are already parsed by the lexer
-        } else if (match(TokenType::TK_OPEN_PAREN)) {
-            expression();
-            if (match(TokenType::TK_CLOSE_PAREN)) {
-                // do nothing
-            } else {
-                throw std::runtime_error("Expected closing parenthesis");
-            }
-        } else {
-            throw std::runtime_error("Expected integer literal, identifier, or opening parenthesis");
-        }
-    }
-
-    bool match(TokenType type) {
-        if (is_at_end()) {
-            return false;
-        }
-        if (tokens[current].type == type) {
-            current++;
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    const Token& advance() {
-        if (!is_at_end()) {
-            current++;
-        }
-        return previous();
-    }
-
-    bool is_at_end() {
-        return current >= tokens.size();
-    }
-
-    const Token& previous() {
-        return tokens[current - 1];
-    }
-};
-
-
+}

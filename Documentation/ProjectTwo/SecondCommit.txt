@@ -1,0 +1,6 @@
+For this committ I wanted to be able to link my files together (it was painful having 
+not done so in C++ before) I achieved that. But after doing so I realized that my 
+prior chatgpt code was not to hot so I had to remake it myself.
+
+In this committ I do that and a little bit more, my first test case was {}$ and it 
+worked correctly. Now I have a lot more left to do.
