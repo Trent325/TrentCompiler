@@ -5,8 +5,7 @@
 #include <vector>
 #include <string>
 
-// creates a type for all the tokens
-// ChatGPT wrote my last version of my Lexer with me now I decided to make a better one
+// create an Enum of Token Type (GPT helped with this originally)
 enum class TokenType {
   TK_EOF,
   TK_INT,

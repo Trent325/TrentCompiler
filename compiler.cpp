@@ -44,6 +44,15 @@ string TokenTypeToString(TokenType type) {
     }
 }
 
+// method to split the token stream up into programs to be parsed
+vector<Token> createNewVector(int start, int end, vector<Token> originalVector) {
+    vector<Token> newVector;
+    for (int i = start; i <= end; i++) {
+        newVector.push_back(originalVector[i]);
+    }
+    return newVector;
+}
+
 // My method to print out tokens
 void printToken(const Token& token) {
     if(token.type == TokenType::TK_ERROR){
@@ -94,6 +103,7 @@ int main(int argc, char* argv[]) {
     cout << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
     int Warnings = 0;
     int Errors = 0;
+    int StartOfProgram = 0;
     // iterate over each element in the vector
     for (int i = 0; i < tokens.size(); i++) {
         // If the token is a warning increase the count 
@@ -110,23 +120,33 @@ int main(int argc, char* argv[]) {
         printToken(tokens[i]);
         //If a program ended increment the PC and output
         if (tokens[i].type == TokenType::TK_EOF) {
-            if(i == tokens.size()-1){
-                // do nothing
+            // End of lexing the program
+            if(Errors != 0){
+                cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
+                cout <<"\n"<< "INFO PARSER SKIPPED DUE TO LEXER ERROR";
+            } else {
+                cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
+                // if there is a good lex than parse
+                
+                vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
+                for(int i = 0; i<TokensToParse.size(); i++){
+                    cout <<"\n" << TokenTypeToString(TokensToParse[i].type) ;
+                }
+                StartOfProgram = i+1;
+                cout << "\n" << "INFO PARSER STARTED ON PROGRAM " << programCount << endl;
+                parse(tokens);
             }
-            else{
-                programCount++;
-                cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
-            }
-         } 
-    }
+            // move on to next program
+            programCount++;
+            cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
+        }
+        } 
+    
     // if there is an Error the Lexer needs to fail
     if(Errors != 0){
         cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
     } else {
         cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
     }
-
-    //ADD PARSER IMPLEMENTATION HERE
-    parse(tokens);
-    return 0;
+  
 }

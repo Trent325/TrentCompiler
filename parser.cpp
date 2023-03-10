@@ -101,14 +101,14 @@ void PrintStatement() {
 }
 
 void AssignmentStatement() {
-    cout << "AssignmentStatement" << endl;
+    cout << "ASSIGNMENT STATEMENT" << endl;
     Id();
     match(TokenType::TK_EQUAL);
     Expr();
 }
 // probably take in a token Type as the parameter and have logic to do the right one
 void VarDecl() {
-    cout << "VarDecl" << endl;
+    cout << "VARDEC" << endl;
     TokenType type = tokens[currentTokenIndex].type;
     match(type);
     // TODO: this is going to take more than a simple match 
