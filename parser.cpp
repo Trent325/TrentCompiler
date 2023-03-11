@@ -65,7 +65,7 @@ string TokenTypeToStringOne(TokenType type) {
 // Main function to parse the input
 void parse(vector<Token> tokenStream) {
     tokens = tokenStream;
-    cout << "\nparse()..." << endl;
+    cout << "\nPARSER : parse()..." << endl;
     // Start parsing with the Program non-terminal
     Program();
     // Check that all input has been consumed
@@ -88,20 +88,20 @@ void match(TokenType type) {
 
 // Non-terminal functions
 void Program() {
-    cout << "parseProgram()..." << endl;
+    cout << "PARSER : parseProgram()..." << endl;
     Block();
     match(TokenType::TK_EOF);
 }
 
 void Block() {
-    cout << "parseBlock()..." << endl;
+    cout << "PARSER : parseBlock()..." << endl;
     match(TokenType::TK_OPEN_BRACE);
     StatementList();
     match(TokenType::TK_CLOSE_BRACE);
 }
 
 void StatementList() {
-    cout << "parseStatementList()..." << endl;
+    cout << "PARSER : parseStatementList()..." << endl;
     if (currentTokenIndex >= tokens.size() || tokens[currentTokenIndex].type == TokenType::TK_CLOSE_BRACE) {
         // Empty production
         return;
@@ -111,10 +111,14 @@ void StatementList() {
 }
 
 void Statement() {
-    cout << "parseStatement()..." << endl;
+    cout << "PARSER : parseStatement()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_PRINT) {
         PrintStatement();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
+        VarDecl();
+    }else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
+        VarDecl();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
         VarDecl();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_WHILE) {
         WhileStatement();
@@ -128,7 +132,7 @@ void Statement() {
 }
 
 void PrintStatement() {
-    cout << "parsePrint()..." << endl;
+    cout << "PARSER : parsePrint()..." << endl;
     match(TokenType::TK_PRINT);
     match(TokenType::TK_OPEN_PAREN);
     Expr();
@@ -136,14 +140,14 @@ void PrintStatement() {
 }
 
 void AssignmentStatement() {
-    cout << "parseAssignment()..." << endl;
+    cout << "PARSER : parseAssignment()..." << endl;
     Id();
     match(TokenType::TK_ASSIGN);
     Expr();
 }
 // probably take in a token Type as the parameter and have logic to do the right one
 void VarDecl() {
-    cout << "parseVarDecl()..." << endl;
+    cout << "PARSER : parseVarDecl()..." << endl;
     TokenType type = tokens[currentTokenIndex].type;
     match(type);
     // TODO: this is going to take more than a simple match 
@@ -153,21 +157,21 @@ void VarDecl() {
 }
 
 void WhileStatement() {
-    cout << "parseWhile()..." << endl;
+    cout << "PARSER : parseWhile()..." << endl;
     match(TokenType::TK_WHILE);
     BooleanExpr();
     Block();
 }
 
 void IfStatement() {
-    cout << "parseIf()..." << endl;
+    cout << "PARSER : parseIf()..." << endl;
     match(TokenType::TK_IF);
     BooleanExpr();
     Block();
 }
 
 void Expr() {
-    cout << "parseExpr()..." << endl;
+    cout << "PARSER : parseExpr()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
         IntExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
@@ -180,7 +184,7 @@ void Expr() {
 }
 
 void IntExpr() {
-    cout << "parseIntExpr()..." << endl;
+    cout << "PARSER : parseIntExpr()..." << endl;
     match(TokenType::TK_DIGIT);
     if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
         match(TokenType::TK_I_TYPE);
@@ -189,14 +193,14 @@ void IntExpr() {
 }
 
 void StringExpr() {
-    cout << "STRING EXPR" << endl;
+    cout << "PARSER : STRING EXPR" << endl;
     match(TokenType::TK_QUOTE);
     CharList();
     match(TokenType::TK_QUOTE);
 }
 
 void BooleanExpr() {
-    cout << "BOOLEAN EXPR" << endl;
+    cout << "PARSER : BOOLEAN EXPR" << endl;
     match(TokenType::TK_OPEN_PAREN);
     Expr();
     //match() still gonna be hard 
@@ -205,7 +209,7 @@ void BooleanExpr() {
 }
 // to match ID
 void Id() {
-    cout << "ID" << endl;
+    cout << "PARSER : parseID()..." << endl;
     match(TokenType::TK_ID);
 }
 
