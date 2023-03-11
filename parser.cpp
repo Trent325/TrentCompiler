@@ -79,6 +79,7 @@ void match(TokenType type) {
         currentTokenIndex += currentTokenIndex -3;
     }
     if (tokens[currentTokenIndex].type != type) {
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " expected this token : " <<TokenTypeToStringOne(type);
         throw runtime_error("Syntax error: unexpected token");    
     }
     // Advance to the next token
@@ -178,7 +179,9 @@ void Expr() {
         StringExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_STRING) {
         StringExpr();
-    }else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_QUOTE) {
+        StringExpr();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
         BooleanExpr();
     } else {
         Id();
@@ -217,6 +220,7 @@ void Id() {
 }
 // maybe I do need it?
 void CharList() {
+    cout << "PARSER : parseChar()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_CHAR ||
         tokens[currentTokenIndex].type == TokenType::TK_SPACE) {
         match(tokens[currentTokenIndex].type);

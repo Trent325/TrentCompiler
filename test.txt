@@ -1,3 +1,2 @@
-{int a 
-a = 7}$ 
-
+{string a
+a = "hello"}$

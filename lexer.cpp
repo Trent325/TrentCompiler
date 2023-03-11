@@ -59,7 +59,10 @@ void Lexer::scan_token() {
             line_start = current;
             break;
         // Strings
-        case '"': string(); break;
+        case '"':  
+            add_tokenC(TokenType::TK_QUOTE, c);
+            string(); 
+            break;
         // Digits
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
@@ -173,6 +176,7 @@ bool Lexer::is_valid_string(char c){
 
 // method that processes strings
 void Lexer::string() {
+    int pos_ = current;
     while (peek() != '"' && !is_at_end()) {
         if (peek() == '\n'){
             //If it is a new line character
@@ -189,7 +193,11 @@ void Lexer::string() {
             ErrorMessage.append(nextChar);
             add_tokens(TokenType::TK_INVALID_STRING_CHAR, ErrorMessage);
         }
-        advance();  
+        char c = advance();
+        std::string s(1, c);
+        pos_++;
+        add_tokenCA(TokenType::TK_CHAR, s,pos_); 
+         
     }
     if (is_at_end()) {
         tokens.push_back(Token(TokenType::TK_UNTERMINATED_STRING, "UNTERMINATED STRING", line, position));
@@ -197,10 +205,11 @@ void Lexer::string() {
         return;
     }
     // Consume the closing "
-    advance();
-    // Trim the surrounding quotes
-    std::string value = source.substr(start + 1, current - start - 2);
-    add_token(TokenType::TK_STRING, value);
+    char c = advance();
+    std::string s(1, c);
+    pos_++;
+    add_tokenCA(TokenType::TK_QUOTE, s, pos_);  
+
 }
 
 // method to check if the next character is what is expected
@@ -246,6 +255,15 @@ void Lexer::add_token(TokenType type) {
 // method to add a token and pass through text as the lexeme
 void Lexer::add_tokens(TokenType type, std::string text){
     tokens.push_back(Token(type, text, line, position));
+}
+
+// method to add a token and pass through text as the lexeme
+void Lexer::add_tokenC(TokenType type, char c){
+    std::string s(1, c);
+    tokens.push_back(Token(type, s, line, position));
+}
+void Lexer::add_tokenCA(TokenType type, std::string text, int pos_){
+    tokens.push_back(Token(type, text, line, pos_));
 }
 
 // method to add a token and pass through text to be used as nothing and have a determined lexeme

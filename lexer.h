@@ -73,6 +73,8 @@ private:
     void scan_token();
     void add_token(TokenType type);
     void add_token(TokenType type, std::string text);
+    void add_tokenC(TokenType type, char c);
+    void add_tokenCA(TokenType type, std::string, int pos);
     void add_tokens(TokenType type, std::string text);
     void string();
     void number();
