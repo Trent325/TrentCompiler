@@ -27,10 +27,45 @@ void BooleanExpr();
 void Id();
 void CharList();
 
+string TokenTypeToStringOne(TokenType type) {
+    switch(type) {
+        case TokenType::TK_OPEN_PAREN: return "LEFT_PAREN";
+        case TokenType::TK_CLOSE_PAREN: return "RIGHT_PAREN";
+        case TokenType::TK_OPEN_BRACE: return "LEFT_BRACE";
+        case TokenType::TK_CLOSE_BRACE: return "RIGHT_BRACE";
+        case TokenType::TK_EOF: return "END OF PROGRAM";
+        case TokenType::TK_DIGIT: return "DIGIT";
+        case TokenType::TK_EQUAL: return "EQUALS";
+        case TokenType::TK_INT: return "INT";
+        case TokenType::TK_STRING: return "STRING";
+        case TokenType::TK_ID: return "IDENTIFIER";
+        case TokenType::TK_BTYPE: return "BASIC TYPE";
+        case TokenType::TK_I_TYPE: return "INTEGER TYPE";
+        case TokenType::TK_S_TYPE: return "STRING TYPE";
+        case TokenType::TK_PRINT: return "PRINT";
+        case TokenType::TK_ASSIGN: return "ASSIGN";
+        case TokenType::TK_COMMENT: return "COMMENT";
+        case TokenType::TK_WHILE: return "WHILE";
+        case TokenType::TK_IF: return "IF";
+        case TokenType::TK_TRUE: return "BOOLEAN TRUE";
+        case TokenType::TK_FALSE: return "BOOLEAN FALSE";
+        case TokenType::TK_NOT_EQUAL: return "NOT EQUAL";
+        case TokenType::TK_CHAR: return "CHARACTER";
+        case TokenType::TK_QUOTE: return "QUOTE";
+        case TokenType::TK_PLUS: return "PLUS";
+        case TokenType::TK_WARNING: return "WARNING";
+        case TokenType::TK_ERROR: return "ERROR";
+        case TokenType::TK_MULTLN_STRING: return " ";
+        case TokenType::TK_INVALID_STRING_CHAR: return " ";
+        case TokenType::TK_SPACE: return "SPACE";
+        case TokenType::TK_B_TYPE: return "BOOLEAN";
+        default: return "UNKNOWN";
+    }
+}
 // Main function to parse the input
 void parse(vector<Token> tokenStream) {
     tokens = tokenStream;
-    cout << "\nPARSE" << endl;
+    cout << "\nparse()..." << endl;
     // Start parsing with the Program non-terminal
     Program();
     // Check that all input has been consumed
@@ -42,10 +77,10 @@ void parse(vector<Token> tokenStream) {
 // Helper function to match the expected token type
 void match(TokenType type) {
     if (currentTokenIndex >= tokens.size()) {
-        throw runtime_error("Syntax error: unexpected end of input");
+        currentTokenIndex += currentTokenIndex -2;
     }
     if (tokens[currentTokenIndex].type != type) {
-        throw runtime_error("Syntax error: unexpected token");
+        throw runtime_error("Syntax error: unexpected token");    
     }
     // Advance to the next token
     currentTokenIndex++;
@@ -53,20 +88,20 @@ void match(TokenType type) {
 
 // Non-terminal functions
 void Program() {
-    cout << "PROGRAM" << endl;
+    cout << "parseProgram()..." << endl;
     Block();
     match(TokenType::TK_EOF);
 }
 
 void Block() {
-    cout << "BLOCK" << endl;
+    cout << "parseBlock()..." << endl;
     match(TokenType::TK_OPEN_BRACE);
     StatementList();
     match(TokenType::TK_CLOSE_BRACE);
 }
 
 void StatementList() {
-    cout << "STATEMENTLIST" << endl;
+    cout << "parseStatementList()..." << endl;
     if (currentTokenIndex >= tokens.size() || tokens[currentTokenIndex].type == TokenType::TK_CLOSE_BRACE) {
         // Empty production
         return;
@@ -76,7 +111,7 @@ void StatementList() {
 }
 
 void Statement() {
-    cout << "STATEMENT" << endl;
+    cout << "parseStatement()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_PRINT) {
         PrintStatement();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
@@ -93,7 +128,7 @@ void Statement() {
 }
 
 void PrintStatement() {
-    cout << "PrintStatement" << endl;
+    cout << "parsePrint()..." << endl;
     match(TokenType::TK_PRINT);
     match(TokenType::TK_OPEN_PAREN);
     Expr();
@@ -101,14 +136,14 @@ void PrintStatement() {
 }
 
 void AssignmentStatement() {
-    cout << "ASSIGNMENT STATEMENT" << endl;
+    cout << "parseAssignment()..." << endl;
     Id();
     match(TokenType::TK_ASSIGN);
     Expr();
 }
 // probably take in a token Type as the parameter and have logic to do the right one
 void VarDecl() {
-    cout << "VARDEC" << endl;
+    cout << "parseVarDecl()..." << endl;
     TokenType type = tokens[currentTokenIndex].type;
     match(type);
     // TODO: this is going to take more than a simple match 
@@ -118,21 +153,21 @@ void VarDecl() {
 }
 
 void WhileStatement() {
-    cout << "WHILE STATEMENT" << endl;
+    cout << "parseWhile()..." << endl;
     match(TokenType::TK_WHILE);
     BooleanExpr();
     Block();
 }
 
 void IfStatement() {
-    cout << "IF STATEMENT" << endl;
+    cout << "parseIf()..." << endl;
     match(TokenType::TK_IF);
     BooleanExpr();
     Block();
 }
 
 void Expr() {
-    cout << "EXPR" << endl;
+    cout << "parseExpr()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
         IntExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
@@ -145,7 +180,7 @@ void Expr() {
 }
 
 void IntExpr() {
-    cout << "INT EXPR" << endl;
+    cout << "parseIntExpr()..." << endl;
     match(TokenType::TK_DIGIT);
     if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
         match(TokenType::TK_I_TYPE);
