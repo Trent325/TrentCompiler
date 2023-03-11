@@ -24,6 +24,7 @@ void Expr();
 void IntExpr();
 void StringExpr();
 void BooleanExpr();
+void Boolval();
 void Id();
 void CharList();
 // method to parse strings
@@ -185,6 +186,8 @@ void Expr() {
         StringExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
         BooleanExpr();
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_TRUE) {
+        BooleanExpr();
     } else {
         Id();
     }
@@ -209,11 +212,24 @@ void StringExpr() {
 // to match Bools
 void BooleanExpr() {
     cout << "PARSER : parseBooleanExpr()..." << endl;
-    match(TokenType::TK_OPEN_PAREN);
-    Expr();
-    //match() still gonna be hard 
-    Expr();
-    match(TokenType::TK_CLOSE_PAREN);
+    if(tokens[currentTokenIndex].type == TokenType::TK_TRUE){
+       Boolval();
+    }
+    if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
+        Boolval();
+    }
+
+}
+// to Parse boolVals
+void Boolval(){
+    cout << "PARSER : parseBooleanValue()..." << endl;
+    if(tokens[currentTokenIndex].type == TokenType::TK_TRUE){
+        match(TokenType::TK_TRUE);
+    }
+    if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
+        match(TokenType::TK_FALSE);
+    }
+
 }
 // to match ID
 void Id() {
