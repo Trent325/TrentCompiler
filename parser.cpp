@@ -178,7 +178,7 @@ void IfStatement() {
 void Expr() {
     cout << "PARSER : parseExpr()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
-        IntExpr();
+        Digit();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
         StringExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_STRING) {
@@ -235,7 +235,7 @@ void Boolval(){
 // to match ID
 void Id() {
     cout << "PARSER : parseID()..." << endl;
-    Digit();
+    match(TokenType::TK_ID);
 }
 // to parse numbers with multiple digits
 void Digit(){
