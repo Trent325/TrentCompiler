@@ -25,6 +25,7 @@ void IntExpr();
 void StringExpr();
 void BooleanExpr();
 void Boolval();
+void Digit();
 void Id();
 void CharList();
 // method to parse strings
@@ -234,7 +235,15 @@ void Boolval(){
 // to match ID
 void Id() {
     cout << "PARSER : parseID()..." << endl;
-    match(TokenType::TK_ID);
+    Digit();
+}
+// to parse numbers with multiple digits
+void Digit(){
+    while(tokens[currentTokenIndex].type == TokenType::TK_DIGIT){
+        cout << "PARSER : parseDigit()..." << endl;
+        match(TokenType::TK_DIGIT);
+        currentTokenIndex++;
+    }
 }
 // maybe I do need it?
 void CharList() {
