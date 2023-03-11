@@ -127,7 +127,6 @@ int main(int argc, char* argv[]) {
             } else {
                 cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" <<"\n";
                 // if there is a good lex than parse
-                
                 vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
                 StartOfProgram = i+1;
                 for (int i = 0; i < TokensToParse.size(); i++) {

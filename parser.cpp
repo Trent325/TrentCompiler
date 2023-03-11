@@ -77,7 +77,7 @@ void parse(vector<Token> tokenStream) {
 // Helper function to match the expected token type
 void match(TokenType type) {
     if (currentTokenIndex >= tokens.size()) {
-        currentTokenIndex += currentTokenIndex -2;
+        currentTokenIndex += currentTokenIndex -3;
     }
     if (tokens[currentTokenIndex].type != type) {
         throw runtime_error("Syntax error: unexpected token");    
@@ -153,6 +153,8 @@ void VarDecl() {
     // TODO: this is going to take more than a simple match 
     // because we need to match any type and there are a few
     // match("type");
+    // TODO: maybe change my lexer to be like the verision I handed in,
+    // creating a stream of tokens for inside the quotes would be a good idea
     Id();
 }
 
@@ -176,7 +178,9 @@ void Expr() {
         IntExpr();
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
         StringExpr();
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_STRING) {
+        StringExpr();
+    }else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
         BooleanExpr();
     } else {
         Id();
@@ -193,7 +197,7 @@ void IntExpr() {
 }
 
 void StringExpr() {
-    cout << "PARSER : STRING EXPR" << endl;
+    cout << "PARSER : parseStringExpr()..." << endl;
     match(TokenType::TK_QUOTE);
     CharList();
     match(TokenType::TK_QUOTE);
