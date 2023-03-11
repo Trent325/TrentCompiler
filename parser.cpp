@@ -79,8 +79,10 @@ void match(TokenType type) {
         currentTokenIndex += currentTokenIndex -3;
     }
     if (tokens[currentTokenIndex].type != type) {
-        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " expected this token : " <<TokenTypeToStringOne(type);
-        throw runtime_error("Syntax error: unexpected token");    
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : " <<TokenTypeToStringOne(type);
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");   
     }
     // Advance to the next token
     currentTokenIndex++;
