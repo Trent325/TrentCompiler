@@ -37,6 +37,6 @@ https://bytes.usc.edu/cs104/wiki/makefile/
 }
 
 What Branch to Grade?
-Grade the master branch please, when I start working on the parser I will create a seperate branch. Thank you
+Grade the master branch please, always, I may make another branch for out side the box ideas, but not likely.
 
 
