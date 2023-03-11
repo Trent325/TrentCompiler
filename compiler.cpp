@@ -122,10 +122,10 @@ int main(int argc, char* argv[]) {
         if (tokens[i].type == TokenType::TK_EOF) {
             // End of lexing the program
             if(Errors != 0){
-                cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" <<"\n";
+                cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" ;
                 cout <<"\n"<< "INFO PARSER SKIPPED DUE TO LEXER ERROR";
             } else {
-                cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" <<"\n";
+                cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" ;
                 // if there is a good lex than parse
                 vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
                 StartOfProgram = i+1;

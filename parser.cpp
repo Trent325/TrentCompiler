@@ -26,7 +26,7 @@ void StringExpr();
 void BooleanExpr();
 void Id();
 void CharList();
-
+// method to parse strings
 string TokenTypeToStringOne(TokenType type) {
     switch(type) {
         case TokenType::TK_OPEN_PAREN: return "LEFT_PAREN";
@@ -65,7 +65,7 @@ string TokenTypeToStringOne(TokenType type) {
 // Main function to parse the input
 void parse(vector<Token> tokenStream) {
     tokens = tokenStream;
-    cout << "\nPARSER : parse()..." << endl;
+    cout << "PARSER : parse()..." << endl;
     // Start parsing with the Program non-terminal
     Program();
     // Check that all input has been consumed
@@ -73,7 +73,6 @@ void parse(vector<Token> tokenStream) {
         throw runtime_error("Syntax error: unexpected token");
     }
 }
-
 // Helper function to match the expected token type
 void match(TokenType type) {
     if (currentTokenIndex >= tokens.size()) {
@@ -85,21 +84,20 @@ void match(TokenType type) {
     // Advance to the next token
     currentTokenIndex++;
 }
-
 // Non-terminal functions
 void Program() {
     cout << "PARSER : parseProgram()..." << endl;
     Block();
     match(TokenType::TK_EOF);
 }
-
+// to parse Block 
 void Block() {
     cout << "PARSER : parseBlock()..." << endl;
     match(TokenType::TK_OPEN_BRACE);
     StatementList();
     match(TokenType::TK_CLOSE_BRACE);
 }
-
+// to parse Statement List
 void StatementList() {
     cout << "PARSER : parseStatementList()..." << endl;
     if (currentTokenIndex >= tokens.size() || tokens[currentTokenIndex].type == TokenType::TK_CLOSE_BRACE) {
@@ -109,7 +107,7 @@ void StatementList() {
     Statement();
     StatementList();
 }
-
+// to parse statement
 void Statement() {
     cout << "PARSER : parseStatement()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_PRINT) {
@@ -130,7 +128,7 @@ void Statement() {
         AssignmentStatement();
     }
 }
-
+// to parse Print Statement
 void PrintStatement() {
     cout << "PARSER : parsePrint()..." << endl;
     match(TokenType::TK_PRINT);
@@ -138,7 +136,7 @@ void PrintStatement() {
     Expr();
     match(TokenType::TK_CLOSE_PAREN);
 }
-
+// to parse Assignment Statement
 void AssignmentStatement() {
     cout << "PARSER : parseAssignment()..." << endl;
     Id();
@@ -157,21 +155,21 @@ void VarDecl() {
     // creating a stream of tokens for inside the quotes would be a good idea
     Id();
 }
-
+// to parse a While Statement
 void WhileStatement() {
     cout << "PARSER : parseWhile()..." << endl;
     match(TokenType::TK_WHILE);
     BooleanExpr();
     Block();
 }
-
+// to parse and IF
 void IfStatement() {
     cout << "PARSER : parseIf()..." << endl;
     match(TokenType::TK_IF);
     BooleanExpr();
     Block();
 }
-
+// to Parse Expr
 void Expr() {
     cout << "PARSER : parseExpr()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
@@ -186,25 +184,26 @@ void Expr() {
         Id();
     }
 }
-
+// to parse IntExpr
 void IntExpr() {
     cout << "PARSER : parseIntExpr()..." << endl;
     match(TokenType::TK_DIGIT);
+    cout << "PARSER : parseInt()..." << endl;
     if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
         match(TokenType::TK_I_TYPE);
         Expr();
     }
 }
-
+// To parse Strings
 void StringExpr() {
     cout << "PARSER : parseStringExpr()..." << endl;
     match(TokenType::TK_QUOTE);
     CharList();
     match(TokenType::TK_QUOTE);
 }
-
+// to match Bools
 void BooleanExpr() {
-    cout << "PARSER : BOOLEAN EXPR" << endl;
+    cout << "PARSER : parseBooleanExpr()..." << endl;
     match(TokenType::TK_OPEN_PAREN);
     Expr();
     //match() still gonna be hard 
@@ -216,7 +215,6 @@ void Id() {
     cout << "PARSER : parseID()..." << endl;
     match(TokenType::TK_ID);
 }
-
 // maybe I do need it?
 void CharList() {
     if (tokens[currentTokenIndex].type == TokenType::TK_CHAR ||
