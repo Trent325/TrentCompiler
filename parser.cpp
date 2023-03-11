@@ -103,7 +103,7 @@ void PrintStatement() {
 void AssignmentStatement() {
     cout << "ASSIGNMENT STATEMENT" << endl;
     Id();
-    match(TokenType::TK_EQUAL);
+    match(TokenType::TK_ASSIGN);
     Expr();
 }
 // probably take in a token Type as the parameter and have logic to do the right one

@@ -129,24 +129,14 @@ int main(int argc, char* argv[]) {
                 // if there is a good lex than parse
                 
                 vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
-                for(int i = 0; i<TokensToParse.size(); i++){
-                    cout <<"\n" << TokenTypeToString(TokensToParse[i].type) ;
-                }
-                StartOfProgram = i+1;
+                StartOfProgram = i;
                 cout << "\n" << "INFO PARSER STARTED ON PROGRAM " << programCount << endl;
-                parse(tokens);
-            }
-            // move on to next program
-            programCount++;
-            cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
+                parse(TokensToParse);
+                programCount++;
+                if (i + 1 < tokens.size()) {
+                    cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;
+                }
+             }
         }
-        } 
-    
-    // if there is an Error the Lexer needs to fail
-    if(Errors != 0){
-        cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
-    } else {
-        cout <<"\n" <<"INFO LEXER FINISHED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS";
-    }
-  
+    } 
 }
