@@ -172,8 +172,11 @@ void AssignmentStatement(Tree* tree) {
     cout << "PARSER : parseAssignment()..." << endl;
     tree->addNode("AssignmentStatement", "branch");
     Id(tree);
-    match(TokenType::TK_ASSIGN);
-    tree->addNode("=", "leaf");
+    //trash if this dont work 
+    if(tokens[currentTokenIndex].type == TokenType::TK_ASSIGN){
+        match(TokenType::TK_ASSIGN); // intOp error
+        tree->addNode("=", "leaf");
+    }
     Expr(tree);
     tree->endChildren();
 }
@@ -260,6 +263,9 @@ void IntExpr(Tree* tree) {
     if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
         match(TokenType::TK_I_TYPE);
         Expr(tree); 
+    } else if(tokens[currentTokenIndex+1].type == TokenType::TK_PLUS) {
+        cout<< "intOP made it ";
+        //intOp goes here
     }
 
     tree->endChildren(); // IntExpr
@@ -280,9 +286,6 @@ void BooleanExpr(Tree* tree) {
     cout << "PARSER : parseBooleanExpr()..." << endl;
     tree->addNode("BooleanExpr", "branch");
 
-    // Boolval
-    // ( Expr boolop Expr )
-
     // TODO: handle '(' Expr boolop Expr ')'
     // INFO Compiler: - - - - - - [ BoolExpr ]
     /* INFO Compiler: - - - - - - - < [ ( ] > */
@@ -297,14 +300,12 @@ void BooleanExpr(Tree* tree) {
     /* INFO Compiler: - - - - - - - - - - < [ 9 ] > */
     /* INFO Compiler: - - - - - - - < [ ) ] > */
 
-    // Detect if boolval OR if '(' -- use if, else if here?
-    // Should be true, false, '(', or an error here
-
     if(tokens[currentTokenIndex].type == TokenType::TK_TRUE){
         Boolval(tree);
-    }
-    if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
+    } else if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
         Boolval(tree);
+    }else if(tokens[currentTokenIndex].type == TokenType::TK_OPEN_PAREN){
+        //boolopExpr goes here
     }
 
     tree->endChildren();
@@ -323,25 +324,36 @@ void Boolval(Tree* tree){
     }
     tree->endChildren();
 }
+// to parse intOps
+void intOp(Tree* tree){
+    cout << "PARSER : parseIntOp()..." << endl;
+    tree->addNode("intOp", "branch");
+    match(TokenType::TK_PLUS);
+    tree->addNode("+", "leaf");
+    tree->endChildren();
+    Expr(tree);
+
+}
 // to match ID
 void Id(Tree* tree) {
     cout << "PARSER : parseID()..." << endl;
-    match(TokenType::TK_ID);
+    if(tokens[currentTokenIndex].type == TokenType::TK_PLUS) {
+        intOp(tree);
+    }else{
+        match(TokenType::TK_ID);
+    }
+    
+    
     // Make this a branch because child must be name
     tree->addNode(TokenTypeToStringOne(TokenType::TK_ID), "branch");
-    
     tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
-    
     tree->endChildren();
 }
-// to parse numbers with multiple digits
-// TODO: DO NOT PARSE MULTIPLE DIGITS -- not covered by the grammar, actually
-// incorrect to do so.
+// to parse numbers NO MULTI DIGITS NO MORE
 void Digit(Tree* tree){
         cout << "PARSER : parseDigit()..." << endl;
         match(TokenType::TK_DIGIT);
         tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
-        cout << tokens[currentTokenIndex-1].lexeme;
         tree->endChildren();
      
 }
@@ -358,5 +370,4 @@ void CharList(Tree* tree) {
         CharList(tree);
         tree->endChildren();
     }
-    // else: empty production
 }
