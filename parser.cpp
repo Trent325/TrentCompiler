@@ -27,7 +27,7 @@ void BooleanExpr(Tree* tree);
 void Boolval(Tree* tree);
 // TODO: pass in tree here!
 // TODO: print Digit and print value!
-void Digit();
+void Digit(Tree* tree);
 void Id(Tree* tree);
 void CharList(Tree* tree);
 // method to parse strings
@@ -111,8 +111,6 @@ void Block(Tree* tree) {
     
     tree->addNode("Block", "branch");
     match(TokenType::TK_OPEN_BRACE);
-    // TODO: for CST, include "brackets" '{', '}'
-    // need to do similarly in rest of program -- see grammar
     tree->addNode("{", "leaf");
     
     StatementList(tree);
@@ -215,7 +213,7 @@ void Expr(Tree* tree) {
     cout << "PARSER : parseExpr()..." << endl;
     tree->addNode("Expr", "branch");
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
-        Digit();
+        Digit(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
         StringExpr(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_STRING) {
@@ -243,7 +241,7 @@ void IntExpr(Tree* tree) {
 
     match(TokenType::TK_DIGIT);
     // TODO: pass in tree here
-    Digit(); 
+    Digit(tree); 
 
     cout << "PARSER : parseInt()..." << endl;
 
@@ -331,19 +329,21 @@ void Id(Tree* tree) {
     match(TokenType::TK_ID);
     // Make this a branch because child must be name
     tree->addNode(TokenTypeToStringOne(TokenType::TK_ID), "branch");
-    // TODO: add name as child here...
-    // Then
-    // tree->endChildren();
+    
+    tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
+    
+    tree->endChildren();
 }
 // to parse numbers with multiple digits
 // TODO: DO NOT PARSE MULTIPLE DIGITS -- not covered by the grammar, actually
 // incorrect to do so.
-void Digit(){
-    while(tokens[currentTokenIndex].type == TokenType::TK_DIGIT){
+void Digit(Tree* tree){
         cout << "PARSER : parseDigit()..." << endl;
         match(TokenType::TK_DIGIT);
-        currentTokenIndex++;
-    }
+        tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
+        cout << tokens[currentTokenIndex-1].lexeme;
+        tree->endChildren();
+     
 }
 // definitly need it 
 void CharList(Tree* tree) {
@@ -353,7 +353,7 @@ void CharList(Tree* tree) {
         tree->addNode("CharList", "branch");
         match(tokens[currentTokenIndex].type);
         
-        // TODO: add in char or space value as child here.
+        tree->addNode(tokens[currentTokenIndex].lexeme, "leaf");
 
         CharList(tree);
         tree->endChildren();

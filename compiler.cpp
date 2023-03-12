@@ -129,9 +129,6 @@ int main(int argc, char* argv[]) {
                 // if there is a good lex than parse
                 vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
                 StartOfProgram = i+1;
-                for (int i = 0; i < TokensToParse.size(); i++) {
-                    cout <<"\n" << TokenTypeToString(TokensToParse[i].type);
-                }
                 cout << "\n" << "INFO PARSER STARTED ON PROGRAM " << programCount << "\n" << endl;
                 parse(TokensToParse);
                 cout << "\n" << "INFO PARSER COMPLETED SUCCESSFULLY";
