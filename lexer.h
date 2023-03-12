@@ -11,7 +11,6 @@ enum class TokenType {
   TK_INT,
   TK_STRING,
   TK_ID,
-  // TODO: remove?
   TK_BTYPE,
   TK_I_TYPE,
   TK_S_TYPE,

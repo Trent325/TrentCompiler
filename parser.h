@@ -4,12 +4,13 @@
 #include <vector>
 #include <stdexcept>
 
+#include "cst.h"
 #include "lexer.h" 
 
 using namespace std;
 
 // Forward declarations
-void parse(vector<Token> tokenStream);
+Tree* parse(vector<Token> tokenStream);
 
 
 #endif // PARSER_H

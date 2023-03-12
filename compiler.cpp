@@ -135,6 +135,9 @@ int main(int argc, char* argv[]) {
                 cout << "\n" << "INFO PARSER STARTED ON PROGRAM " << programCount << "\n" << endl;
                 parse(TokensToParse);
                 cout << "\n" << "INFO PARSER COMPLETED SUCCESSFULLY";
+                Tree* cst = parse(TokensToParse);
+                cout << "\n" << "INFO CST STARTED ON PROGRAM " << programCount << "\n" << endl;
+                cout << cst->toString() << endl;
                 programCount++;
                 if (i + 1 < tokens.size()) {
                     cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;

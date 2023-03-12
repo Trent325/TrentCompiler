@@ -1,6 +1,8 @@
 #include "cst.h"
 #include <functional>
+
 // I gave ChatGPT Alan's CST file and asked it to create a cst.cpp
+
 TreeNode::TreeNode(std::string name) {
     this->name = name;
     parent = nullptr;
