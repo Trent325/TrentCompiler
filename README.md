@@ -39,4 +39,7 @@ https://bytes.usc.edu/cs104/wiki/makefile/
 What Branch to Grade?
 Grade the master branch please, always, I may make another branch for out side the box ideas, but not likely.
 
+If you can't compile...
+Use mingw32 compiler 
+
 
