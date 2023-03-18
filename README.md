@@ -42,4 +42,4 @@ Grade the master branch please, always, I may make another branch for out side t
 If you can't compile...
 Use mingw32 compiler 
 
-
+g++ -std=c++17 -c -Wall compiler.cpp parser.cpp lexer.cpp cst.cpp
