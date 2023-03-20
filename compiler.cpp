@@ -130,11 +130,16 @@ int main(int argc, char* argv[]) {
                 vector<Token> TokensToParse = createNewVector(StartOfProgram, i, tokens);
                 StartOfProgram = i+1;
                 cout << "\n" << "INFO PARSER STARTED ON PROGRAM " << programCount << "\n" << endl;
-                parse(TokensToParse);
-                cout << "\n" << "INFO PARSER COMPLETED SUCCESSFULLY";
-                Tree* cst = parse(TokensToParse);
-                cout << "\n" << "INFO CST STARTED ON PROGRAM " << programCount << "\n" << endl;
-                cout << cst->toString() << endl;
+                try{
+                    Tree* cst = parse(TokensToParse);
+                    cout << "\n" << "INFO PARSER COMPLETED SUCCESSFULLY";
+                    cout << "\n" << "INFO CST STARTED ON PROGRAM " << programCount << "\n" << endl;
+                    cout << cst->toString() << endl;
+                }
+                catch(runtime_error & e){
+                    cout << "\nINFO PARSER FAILED ... SKIPPING CST" << endl;
+                    
+                }
                 programCount++;
                 if (i + 1 < tokens.size()) {
                     cout << "\n" << "INFO LEXER STARTED ON PROGRAM " << programCount << endl;

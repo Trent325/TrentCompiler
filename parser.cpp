@@ -25,8 +25,6 @@ void IntExpr(Tree* tree);
 void StringExpr(Tree* tree);
 void BooleanExpr(Tree* tree);
 void Boolval(Tree* tree);
-// TODO: pass in tree here!
-// TODO: print Digit and print value!
 void Digit(Tree* tree);
 void Id(Tree* tree);
 void CharList(Tree* tree);
