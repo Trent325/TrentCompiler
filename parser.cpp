@@ -149,6 +149,8 @@ void Statement(Tree* tree) {
         Block(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_PLUS) {
         intOp(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
+        Digit(tree);
     }else {
         AssignmentStatement(tree);
     }
@@ -356,6 +358,7 @@ void Id(Tree* tree) {
 void Digit(Tree* tree){
         cout << "PARSER : parseDigit()..." << endl;
         match(TokenType::TK_DIGIT);
+        tree->addNode("digit", "branch");
         tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
         tree->endChildren();
      
