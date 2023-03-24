@@ -29,6 +29,7 @@ void Digit(Tree* tree);
 void Id(Tree* tree);
 void intOp(Tree* tree);
 void CharList(Tree* tree);
+void BooleanOp(Tree* tree);
 // method to parse strings
 string TokenTypeToStringOne(TokenType type) {
     switch(type) {
@@ -62,6 +63,7 @@ string TokenTypeToStringOne(TokenType type) {
         case TokenType::TK_INVALID_STRING_CHAR: return " ";
         case TokenType::TK_SPACE: return "SPACE";
         case TokenType::TK_B_TYPE: return "BOOLEAN";
+        case TokenType::TK_BOOLOP: return "BOOLEAN OPERATION";
         default: return "UNKNOWN";
     }
 }
@@ -151,7 +153,14 @@ void Statement(Tree* tree) {
         intOp(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
         Digit(tree);
-    }else {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_EQUAL) {
+        if (tokens[currentTokenIndex + 1].type == TokenType::TK_EQUAL) {
+            BooleanOp(tree);
+        } else{
+            AssignmentStatement(tree);
+        }
+        
+    } else {
         AssignmentStatement(tree);
     }
     tree->endChildren();
@@ -338,6 +347,9 @@ void intOp(Tree* tree){
     tree->endChildren();
     //Expr(tree);
 
+}
+//to parse Boolean operators
+void BooleanOp(Tree* tree){
 }
 // to match ID
 void Id(Tree* tree) {

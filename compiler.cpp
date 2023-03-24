@@ -40,6 +40,7 @@ string TokenTypeToString(TokenType type) {
         case TokenType::TK_INVALID_STRING_CHAR: return " ";
         case TokenType::TK_SPACE: return "SPACE";
         case TokenType::TK_B_TYPE: return "BOOLEAN";
+        case TokenType::TK_BOOLOP: return "BOOLEAN OPERATION";
         default: return "UNKNOWN";
     }
 }

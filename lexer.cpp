@@ -46,7 +46,15 @@ void Lexer::scan_token() {
         case '$': add_token(TokenType::TK_EOF); break;
         // One or two character tokens
         case '!': add_token(match('=') ? TokenType::TK_NOT_EQUAL : TokenType::TK_NOT_EQUAL); break;
-        case '=': add_token(match('=') ? TokenType::TK_ASSIGN : TokenType::TK_ASSIGN ); break;
+        case '=': 
+        if(peek() == '='){
+            advance();
+            add_token(TokenType::TK_BOOLOP);
+        }
+        else{
+            add_token(TokenType::TK_ASSIGN ); 
+        }
+        break;
         // Whitespace
         case ' ':
         case '\r':

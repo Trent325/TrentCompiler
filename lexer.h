@@ -37,7 +37,8 @@ enum class TokenType {
   TK_UNTERMINATED_STRING,
   TK_MULTLN_STRING,
   TK_INVALID_STRING_CHAR,
-  TK_B_TYPE
+  TK_B_TYPE,
+  TK_BOOLOP
 };
 
 // structures the type Token
