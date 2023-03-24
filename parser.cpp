@@ -27,6 +27,7 @@ void BooleanExpr(Tree* tree);
 void Boolval(Tree* tree);
 void Digit(Tree* tree);
 void Id(Tree* tree);
+void intOp(Tree* tree);
 void CharList(Tree* tree);
 // method to parse strings
 string TokenTypeToStringOne(TokenType type) {
@@ -145,7 +146,6 @@ void Statement(Tree* tree) {
     } else if (tokens[currentTokenIndex].type == TokenType::TK_IF) {
         IfStatement(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_BRACE) {
-        
         Block(tree);
     } else {
         AssignmentStatement(tree);
@@ -225,7 +225,7 @@ void Expr(Tree* tree) {
         BooleanExpr(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_TRUE) {
         BooleanExpr(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_FALSE) {
+    }  else if (tokens[currentTokenIndex].type == TokenType::TK_FALSE) {
         BooleanExpr(tree);
     } else {
         Id(tree);
@@ -329,7 +329,7 @@ void intOp(Tree* tree){
     match(TokenType::TK_PLUS);
     tree->addNode("+", "leaf");
     tree->endChildren();
-    Expr(tree);
+    //Expr(tree);
 
 }
 // to match ID
