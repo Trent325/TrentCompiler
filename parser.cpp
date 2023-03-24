@@ -147,7 +147,9 @@ void Statement(Tree* tree) {
         IfStatement(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_BRACE) {
         Block(tree);
-    } else {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_PLUS) {
+        intOp(tree);
+    }else {
         AssignmentStatement(tree);
     }
     tree->endChildren();
@@ -169,7 +171,10 @@ void PrintStatement(Tree* tree) {
 void AssignmentStatement(Tree* tree) {
     cout << "PARSER : parseAssignment()..." << endl;
     tree->addNode("AssignmentStatement", "branch");
-    Id(tree);
+    if(tokens[currentTokenIndex].type == TokenType::TK_ID){
+        Id(tree);
+    }
+   
     //trash if this dont work 
     if(tokens[currentTokenIndex].type == TokenType::TK_ASSIGN){
         match(TokenType::TK_ASSIGN); // intOp error
