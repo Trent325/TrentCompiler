@@ -153,13 +153,8 @@ void Statement(Tree* tree) {
         intOp(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
         Digit(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_EQUAL) {
-        if (tokens[currentTokenIndex + 1].type == TokenType::TK_EQUAL) {
-            BooleanOp(tree);
-        } else{
-            AssignmentStatement(tree);
-        }
-        
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_BOOLOP) {
+        BooleanOp(tree);
     } else {
         AssignmentStatement(tree);
     }
@@ -184,6 +179,9 @@ void AssignmentStatement(Tree* tree) {
     tree->addNode("AssignmentStatement", "branch");
     if(tokens[currentTokenIndex].type == TokenType::TK_ID){
         Id(tree);
+        match(TokenType::TK_ASSIGN);
+        tree->addNode("=", "leaf");
+        //Expr(tree);
     }
    
     //trash if this dont work 
@@ -243,9 +241,9 @@ void Expr(Tree* tree) {
         BooleanExpr(tree);
     }  else if (tokens[currentTokenIndex].type == TokenType::TK_FALSE) {
         BooleanExpr(tree);
-    } else {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_ID) {
         Id(tree);
-    }
+    } 
     tree->endChildren();
 }
 // to parse IntExpr
@@ -259,8 +257,6 @@ void IntExpr(Tree* tree) {
     match(TokenType::TK_DIGIT);
     // TODO: pass in tree here
     Digit(tree); 
-
-    cout << "PARSER : parseInt()..." << endl;
 
     // TODO: Intop
     /* INFO Compiler: - - - - - [ Expr ] */
@@ -350,6 +346,9 @@ void intOp(Tree* tree){
 }
 //to parse Boolean operators
 void BooleanOp(Tree* tree){
+    cout << "PARSER : parseBooleanOp()..." << endl;
+    tree->addNode("BooleanOp", "branch");
+    tree->endChildren();
 }
 // to match ID
 void Id(Tree* tree) {
@@ -373,6 +372,7 @@ void Digit(Tree* tree){
         tree->addNode("digit", "branch");
         tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
         tree->endChildren();
+        
      
 }
 // definitly need it 
