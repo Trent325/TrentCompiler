@@ -1,0 +1,11 @@
+Fixes
+-------------------------------------------------------------------------------------------------------------
+Before starting anything I decided to continue fixing my parser. I did so by redesigning the recursive calls. 
+I did not do any major overhaul but there a few differences.
+
+AST
+-------------------------------------------------------------------------------------------------------------
+I then moved on to the AST. I did so by copy and pasting my parser.
+After I created 2 ast files, I then changed method and variable names so it would function properly. 
+I just deleted the unnecessary out put lines and added a switch case to match to ensure the proper terms 
+are added to the AST. This worked without issue.

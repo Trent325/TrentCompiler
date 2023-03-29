@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-g -std=c++17 -c -Wall
 LINKERFLAGS=
-SOURCES=compiler.cpp parser.cpp lexer.cpp cst.cpp
+SOURCES=compiler.cpp parser.cpp lexer.cpp cst.cpp ast.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=compiler
 

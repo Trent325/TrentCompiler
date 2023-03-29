@@ -4,6 +4,9 @@
 #include <vector>
 
 #include "parser.h" 
+#include "ast.h"
+ 
+
 
 using namespace std;
 
@@ -120,7 +123,7 @@ int main(int argc, char* argv[]) {
         // print tokens
         printToken(tokens[i]);
         //If a program ended increment the PC and output
-        if (tokens[i].type == TokenType::TK_EOF) {
+        if (tokens[i].type == TokenType::TK_EOF || i == tokens.size() - 1) {
             // End of lexing the program
             if(Errors != 0){
                 cout <<"\n"<< "INFO LEXER FAILED WITH "<< Warnings << " WARNINGS AND " << Errors << " ERRORS" ;
@@ -136,6 +139,11 @@ int main(int argc, char* argv[]) {
                     cout << "\n" << "INFO PARSER COMPLETED SUCCESSFULLY";
                     cout << "\n" << "INFO CST STARTED ON PROGRAM " << programCount << "\n" << endl;
                     cout << cst->toString() << endl;
+                    cout << "\n" << "INFO CST COMPLETED SUCCESSFULLY " << programCount << "\n" << endl;
+                    cout << "\n" << "INFO AST STARTED ON PROGRAM " << programCount << "\n" << endl;
+                    Tree* abstractTree = ast(TokensToParse);
+                    cout << abstractTree->toString() << endl;
+
                 }
                 catch(runtime_error & e){
                     cout << "\nINFO PARSER FAILED ... SKIPPING CST" << endl;

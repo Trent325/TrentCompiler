@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "parser.h" 
+#include "ast.h"
 
 using namespace std;
 
@@ -24,12 +25,15 @@ void Expr(Tree* tree);
 void IntExpr(Tree* tree);
 void StringExpr(Tree* tree);
 void BooleanExpr(Tree* tree);
-void Boolval(Tree* tree);
+void BoolVal(Tree* tree);
 void Digit(Tree* tree);
 void Id(Tree* tree);
-void intOp(Tree* tree);
+void IntOp(Tree* tree);
 void CharList(Tree* tree);
 void BooleanOp(Tree* tree);
+void Char(Tree* tree);
+void Space(Tree* tree);
+
 // method to parse strings
 string TokenTypeToStringOne(TokenType type) {
     switch(type) {
@@ -67,6 +71,27 @@ string TokenTypeToStringOne(TokenType type) {
         default: return "UNKNOWN";
     }
 }
+
+// Helper function to match the expected token type
+void match(TokenType type, Tree* tree) {
+    if (currentTokenIndex >= tokens.size()) {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : [ $ ]" ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");   
+    
+    }
+    else if (tokens[currentTokenIndex].type != type) {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : " <<TokenTypeToStringOne(type);
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");   
+    } else{
+        tree->addNode(tokens[currentTokenIndex].lexeme, "leaf");
+        currentTokenIndex++;
+    }
+    
+}
 // Main function to parse the input
 Tree* parse(vector<Token> tokenStream) {
     tokens = tokenStream;
@@ -79,46 +104,31 @@ Tree* parse(vector<Token> tokenStream) {
     if (currentTokenIndex != tokens.size() || tokens.back().type !=  TokenType::TK_EOF) {
         throw runtime_error("Syntax error: unexpected token");
     }
-
     return tree;
 }
-// Helper function to match the expected token type
-void match(TokenType type) {
-    if (currentTokenIndex >= tokens.size()) {
-        currentTokenIndex += currentTokenIndex -3;
-    }
-    if (tokens[currentTokenIndex].type != type) {
-        cout << "\nError";
-        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : " <<TokenTypeToStringOne(type);
-        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
-        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");   
-    }
-    // Advance to the next token
-    currentTokenIndex++;
-}
-// Non-terminal functions
+//Non Terminals
 void Program(Tree* tree) {
     cout << "PARSER : parseProgram()..." << endl;
-   
     tree->addNode("Program", "branch");
     Block(tree);
-    match(TokenType::TK_EOF);
+    match(TokenType::TK_EOF, tree);
     tree->endChildren();
 }
+
 // to parse Block 
 void Block(Tree* tree) {
     cout << "PARSER : parseBlock()..." << endl;
 
-    
     tree->addNode("Block", "branch");
-    match(TokenType::TK_OPEN_BRACE);
-    tree->addNode("{", "leaf");
+    match(TokenType::TK_OPEN_BRACE, tree);
     
     StatementList(tree);
-    match(TokenType::TK_CLOSE_BRACE);
-    tree->addNode("}", "leaf");
+
+    match(TokenType::TK_CLOSE_BRACE, tree);
+    
     tree->endChildren();
 }
+
 // to parse Statement List
 void StatementList(Tree* tree) {
     cout << "PARSER : parseStatementList()..." << endl;
@@ -131,261 +141,238 @@ void StatementList(Tree* tree) {
     StatementList(tree);
     tree->endChildren();
 }
+
 // to parse statement
 void Statement(Tree* tree) {
     cout << "PARSER : parseStatement()..." << endl;
     tree->addNode("Statement", "branch");
     if (tokens[currentTokenIndex].type == TokenType::TK_PRINT) {
         PrintStatement(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
-        VarDecl(tree);
-    }else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
-        VarDecl(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
-        VarDecl(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_WHILE) {
-        WhileStatement(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_IF) {
-        IfStatement(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_BRACE) {
-        Block(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_PLUS) {
-        intOp(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
-        Digit(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_BOOLOP) {
-        BooleanOp(tree);
-    } else {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_ID){
         AssignmentStatement(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE
+                || tokens[currentTokenIndex].type == TokenType::TK_S_TYPE
+                    || tokens[currentTokenIndex].type == TokenType::TK_B_TYPE){
+        VarDecl(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_WHILE){
+        WhileStatement(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_IF){
+        IfStatement(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_BRACE){
+        Block(tree);
+    } else {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : statement " ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");
     }
     tree->endChildren();
 }
+
 // to parse Print Statement
 void PrintStatement(Tree* tree) {
     cout << "PARSER : parsePrint()..." << endl;
     tree->addNode("PrintStatement", "branch");
-    match(TokenType::TK_PRINT);
-    tree->addNode("print", "leaf");
-    match(TokenType::TK_OPEN_PAREN);
-    tree->addNode("(", "leaf");
+    match(TokenType::TK_PRINT, tree);
+    match(TokenType::TK_OPEN_PAREN, tree);
     Expr(tree);
-    match(TokenType::TK_CLOSE_PAREN);
-    tree->addNode(")", "leaf");
+    match(TokenType::TK_CLOSE_PAREN, tree);
+    
     tree->endChildren();
 }
+
 // to parse Assignment Statement
 void AssignmentStatement(Tree* tree) {
     cout << "PARSER : parseAssignment()..." << endl;
     tree->addNode("AssignmentStatement", "branch");
-    if(tokens[currentTokenIndex].type == TokenType::TK_ID){
-        Id(tree);
-        match(TokenType::TK_ASSIGN);
-        tree->addNode("=", "leaf");
-        //Expr(tree);
-    }
-   
-    //trash if this dont work 
-    if(tokens[currentTokenIndex].type == TokenType::TK_ASSIGN){
-        match(TokenType::TK_ASSIGN); // intOp error
-        tree->addNode("=", "leaf");
-    }
+    Id(tree);
+    match(TokenType::TK_ASSIGN, tree);
     Expr(tree);
     tree->endChildren();
 }
+
 // to parse a variable decl
 void VarDecl(Tree* tree) {
     cout << "PARSER : parseVarDecl()..." << endl;
     tree->addNode("VarDecl", "branch");
     TokenType type = tokens[currentTokenIndex].type;
-    match(type);
-
-    tree->addNode(TokenTypeToStringOne(type), "leaf");
+    match(type, tree);
     Id(tree);
     tree->endChildren();
 }
+
 // to parse a While Statement
 void WhileStatement(Tree* tree) {
     cout << "PARSER : parseWhile()..." << endl;
+
     tree->addNode("WhileStatement", "branch");
-    match(TokenType::TK_WHILE);
-    tree->addNode("while", "leaf");
+    match(TokenType::TK_WHILE, tree);
+
     BooleanExpr(tree);
     Block(tree);
+
     tree->endChildren();
 }
+
 // to parse and IF
 void IfStatement(Tree* tree) {
     cout << "PARSER : parseIf()..." << endl;
     tree->addNode("IfStatement", "branch");
-    match(TokenType::TK_IF);
-    tree->addNode("if", "leaf");
+    match(TokenType::TK_IF, tree);
     BooleanExpr(tree);
     Block(tree);
     tree->endChildren();
 }
+
 // to Parse Expr
 void Expr(Tree* tree) {
     cout << "PARSER : parseExpr()..." << endl;
     tree->addNode("Expr", "branch");
     if (tokens[currentTokenIndex].type == TokenType::TK_DIGIT) {
-        Digit(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_S_TYPE) {
-        StringExpr(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_STRING) {
-        StringExpr(tree);
+        IntExpr(tree);
     } else if (tokens[currentTokenIndex].type == TokenType::TK_QUOTE) {
         StringExpr(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_B_TYPE) {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_OPEN_PAREN
+                || tokens[currentTokenIndex].type == TokenType::TK_TRUE 
+                    || tokens[currentTokenIndex].type == TokenType::TK_FALSE) {
         BooleanExpr(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_TRUE) {
-        BooleanExpr(tree);
-    }  else if (tokens[currentTokenIndex].type == TokenType::TK_FALSE) {
-        BooleanExpr(tree);
-    } else if (tokens[currentTokenIndex].type == TokenType::TK_ID) {
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_ID){
         Id(tree);
-    } 
+    } else {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : digit || quote || ( || true || false || Id " ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");
+    }
     tree->endChildren();
 }
+
 // to parse IntExpr
 void IntExpr(Tree* tree) {
     cout << "PARSER : parseIntExpr()..." << endl;
     tree->addNode("IntExpr", "branch");
 
-    // Digit
-    // Digit Intop Expr
-
-    match(TokenType::TK_DIGIT);
-    // TODO: pass in tree here
-    Digit(tree); 
-
-    // TODO: Intop
-    /* INFO Compiler: - - - - - [ Expr ] */
-    /* INFO Compiler: - - - - - - [ IntExpr ] */
-    /* INFO Compiler: - - - - - - - [ Digit ] */
-    /* INFO Compiler: - - - - - - - - < [ 1 ] > */
-    /* INFO Compiler: - - - - - - - [ IntOp ] */
-    /* INFO Compiler: - - - - - - - - < [ + ] > */
-    /* INFO Compiler: - - - - - - - [ Expr ] */
-    /* INFO Compiler: - - - - - - - - [ IntExpr ] */
-    /* INFO Compiler: - - - - - - - - - [ Digit ] */
-    /* INFO Compiler: - - - - - - - - - - < [ 2 ] > */
-
-    if (tokens[currentTokenIndex].type == TokenType::TK_I_TYPE) {
-        match(TokenType::TK_I_TYPE);
-        Expr(tree); 
-    } else if(tokens[currentTokenIndex+1].type == TokenType::TK_PLUS) {
-        cout<< "intOP made it ";
-        //intOp goes here
+    Digit(tree);
+    if(tokens[currentTokenIndex].type != TokenType::TK_PLUS){
+        return; //Empty Production
+    } else {
+        IntOp(tree);
+        Expr(tree);
     }
-
-    tree->endChildren(); // IntExpr
+    tree->endChildren(); 
 }
+
 // To parse Strings
 void StringExpr(Tree* tree) {
     cout << "PARSER : parseStringExpr()..." << endl;
     tree->addNode("StringExpr", "branch");
-    match(TokenType::TK_QUOTE);
-    tree->addNode("\"", "leaf");
+    match(TokenType::TK_QUOTE, tree);
     CharList(tree);
-    match(TokenType::TK_QUOTE);
-    tree->addNode("\"", "leaf");
+    match(TokenType::TK_QUOTE, tree);
     tree->endChildren();
 }
+
 // to match Bools
 void BooleanExpr(Tree* tree) {
     cout << "PARSER : parseBooleanExpr()..." << endl;
     tree->addNode("BooleanExpr", "branch");
 
-    // TODO: handle '(' Expr boolop Expr ')'
-    // INFO Compiler: - - - - - - [ BoolExpr ]
-    /* INFO Compiler: - - - - - - - < [ ( ] > */
-    /* INFO Compiler: - - - - - - - [ Expr ] */
-    /* INFO Compiler: - - - - - - - - [ ID ] */
-    /* INFO Compiler: - - - - - - - - - < [ x ] > */
-    /* INFO Compiler: - - - - - - - [ BoolOp ] */
-    /* INFO Compiler: - - - - - - - - < [ != ] > */
-    /* INFO Compiler: - - - - - - - [ Expr ] */
-    /* INFO Compiler: - - - - - - - - [ IntExpr ] */
-    /* INFO Compiler: - - - - - - - - - [ Digit ] */
-    /* INFO Compiler: - - - - - - - - - - < [ 9 ] > */
-    /* INFO Compiler: - - - - - - - < [ ) ] > */
-
-    if(tokens[currentTokenIndex].type == TokenType::TK_TRUE){
-        Boolval(tree);
-    } else if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
-        Boolval(tree);
-    }else if(tokens[currentTokenIndex].type == TokenType::TK_OPEN_PAREN){
-        //boolopExpr goes here
-    }
-
-    tree->endChildren();
-}
-// to Parse boolVals
-void Boolval(Tree* tree){
-    cout << "PARSER : parseBooleanValue()..." << endl;
-    tree->addNode("BoolVal", "branch");
-    if(tokens[currentTokenIndex].type == TokenType::TK_TRUE){
-        match(TokenType::TK_TRUE);
-        tree->addNode("true", "leaf");
-    }
-    if(tokens[currentTokenIndex].type == TokenType::TK_FALSE){
-        match(TokenType::TK_FALSE);
-        tree->addNode("false", "leaf");
+    if(tokens[currentTokenIndex].type != TokenType::TK_OPEN_PAREN){
+        BoolVal(tree);
+    } else {
+        match(TokenType::TK_OPEN_PAREN, tree);
+        Expr(tree);
+        BooleanOp(tree);
+        Expr(tree);
+        match(TokenType::TK_CLOSE_PAREN, tree);
     }
     tree->endChildren();
 }
-// to parse intOps
-void intOp(Tree* tree){
-    cout << "PARSER : parseIntOp()..." << endl;
-    tree->addNode("intOp", "branch");
-    match(TokenType::TK_PLUS);
-    tree->addNode("+", "leaf");
-    tree->endChildren();
-    //Expr(tree);
 
-}
-//to parse Boolean operators
-void BooleanOp(Tree* tree){
-    cout << "PARSER : parseBooleanOp()..." << endl;
-    tree->addNode("BooleanOp", "branch");
-    tree->endChildren();
-}
 // to match ID
 void Id(Tree* tree) {
     cout << "PARSER : parseID()..." << endl;
-    if(tokens[currentTokenIndex].type == TokenType::TK_PLUS) {
-        intOp(tree);
-    }else{
-        match(TokenType::TK_ID);
-    }
-    
-    
-    // Make this a branch because child must be name
     tree->addNode(TokenTypeToStringOne(TokenType::TK_ID), "branch");
-    tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
+    
+    match(TokenType::TK_ID, tree);
+    
     tree->endChildren();
 }
+
+// definitly need it 
+void CharList(Tree* tree) {
+    cout << "PARSER : parseCharList()..." << endl;
+    tree->addNode("CharList", "branch");
+    if (tokens[currentTokenIndex].type == TokenType::TK_CHAR) {
+        Char(tree);
+        CharList(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_SPACE){
+        Space(tree);
+        CharList(tree);
+    } else if (tokens[currentTokenIndex].type == TokenType::TK_QUOTE){
+        return; //Empty Production
+    } else {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : character || space || quote" ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");
+    }
+        tree->endChildren();
+}
+
+//parse char
+void Char(Tree* tree){
+    cout << "PARSER : parseChar()..." << endl;
+    
+    match(TokenType::TK_CHAR,tree);
+    
+}
+
 // to parse numbers NO MULTI DIGITS NO MORE
 void Digit(Tree* tree){
         cout << "PARSER : parseDigit()..." << endl;
-        match(TokenType::TK_DIGIT);
-        tree->addNode("digit", "branch");
-        tree->addNode(tokens[currentTokenIndex-1].lexeme, "leaf");
-        tree->endChildren();
-        
+        match(TokenType::TK_DIGIT, tree);
      
 }
-// definitly need it 
-void CharList(Tree* tree) {
-    cout << "PARSER : parseChar()..." << endl;
-    if (tokens[currentTokenIndex].type == TokenType::TK_CHAR ||
-        tokens[currentTokenIndex].type == TokenType::TK_SPACE) {
-        tree->addNode("CharList", "branch");
-        match(tokens[currentTokenIndex].type);
-        
-        tree->addNode(tokens[currentTokenIndex].lexeme, "leaf");
 
-        CharList(tree);
-        tree->endChildren();
+// to parse a space 
+void Space(Tree* tree){
+    match(TokenType::TK_SPACE,tree);
+
+}
+
+// to parse a boolean operation
+void BooleanOp(Tree* tree){
+    if(tokens[currentTokenIndex].type == TokenType::TK_NOT_EQUAL 
+        || tokens[currentTokenIndex].type == TokenType::TK_BOOLOP ){
+        match(tokens[currentTokenIndex].type, tree);
     }
+    else {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : != || == " ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");
+    }
+}
+
+// to parse a boolean value
+void BoolVal(Tree* tree){
+    if(tokens[currentTokenIndex].type == TokenType::TK_TRUE 
+        || tokens[currentTokenIndex].type == TokenType::TK_FALSE ){
+        match(tokens[currentTokenIndex].type, tree);
+    } else {
+        cout << "\nError";
+        cout << "\nReceived this token: " << TokenTypeToStringOne(tokens[currentTokenIndex].type) << " Expected this token : true || false" ;
+        cout << "\nAt index "<< tokens[currentTokenIndex].line << " : " << tokens[currentTokenIndex].position <<"\n";
+        throw runtime_error("\nPARSER: PARSE FAILED DUE TO INCORRECT TOKEN");
+    }
+}
+
+// to parse and Int operation 
+
+void IntOp(Tree* tree){
+    cout << "PARSER : parseIntOp()..." << endl;
+    
+    match(TokenType::TK_PLUS, tree);
+    
 }
