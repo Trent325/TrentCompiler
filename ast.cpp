@@ -8,6 +8,7 @@ using namespace std;
 // Global variables
 vector<Token> tokens1;
 int Index = 0;
+string stringToPrint = "\"";
 
 // Forward declarations
 void match1(string expectedType);
@@ -319,12 +320,17 @@ void Id1(Tree* tree) {
 void CharList1(Tree* tree) {
     
     if (tokens1[Index].type == TokenType::TK_CHAR) {
+        stringToPrint += tokens1[Index].lexeme;
         Char1(tree);
         CharList1(tree);
     } else if (tokens1[Index].type == TokenType::TK_SPACE){
+        stringToPrint += tokens1[Index].lexeme;
         Space1(tree);
         CharList1(tree);
     } else if (tokens1[Index].type == TokenType::TK_QUOTE){
+        stringToPrint += "\"";
+        tree->addNode(stringToPrint, "leaf");
+        stringToPrint = "\"";
         return; //Empty Production
     } else {
         cout << "\nError";
