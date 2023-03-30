@@ -34,6 +34,21 @@ void Tree::addNode(std::string name, std::string kind) {
     }
 }
 
+void Tree::addNodeBeginnging(std::string name, std::string kind){
+    TreeNode* node = new TreeNode(name);
+
+    if (root == nullptr) {
+        root = node;
+    } else {
+        node->parent = cur;
+        cur->children.insert(cur->children.begin(), node);
+    }
+
+    if (kind == "branch") {
+        cur = node;
+    }
+}
+
 void Tree::endChildren() {
     if (cur->parent != nullptr && cur->parent->name != "") {
         cur = cur->parent;

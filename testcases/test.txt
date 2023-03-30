@@ -9,7 +9,10 @@
     string b
     b = "b"
     if (a == 1) {
-        print(2 + b)
+        print(2 + 1)
+    }
+    if (a != 1) {
+        print(2 + 1)
     }
 } $
 

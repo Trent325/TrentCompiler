@@ -95,7 +95,13 @@ void match1(TokenType type, Tree* tree) {
                 tree->addNode(tokens1[Index].lexeme, "leaf");
                 break;
             case TokenType::TK_PLUS:
-                tree->addNode("ADD", "leaf");
+                tree->addNodeBeginnging("ADD", "leaf");
+                break;
+            case TokenType::TK_BOOLOP:
+                tree->addNodeBeginnging("IF EQUALS", "leaf");
+                break;
+            case TokenType::TK_NOT_EQUAL:
+                tree->addNodeBeginnging("IF NOT EQUALS", "leaf");
                 break;
             default:
                 

@@ -24,6 +24,7 @@ public:
 
     Tree();
     void addNode(std::string name, std::string kind);
+    void addNodeBeginnging(std::string name, std::string kind);
     void endChildren();
     std::string toString();
     ~Tree();
