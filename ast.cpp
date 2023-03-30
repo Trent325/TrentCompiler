@@ -93,6 +93,8 @@ void match1(TokenType type, Tree* tree) {
             case TokenType::TK_I_TYPE:
             case TokenType::TK_S_TYPE:
             case TokenType::TK_DIGIT:
+            case TokenType::TK_TRUE:
+            case TokenType::TK_FALSE:
                 tree->addNode(tokens1[Index].lexeme, "leaf");
                 break;
             case TokenType::TK_PLUS:
@@ -350,7 +352,6 @@ void Char1(Tree* tree){
 
 // to parse numbers NO MULTI DIGITS NO MORE
 void Digit1(Tree* tree){
-        
         match1(TokenType::TK_DIGIT, tree);
      
 }
