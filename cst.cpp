@@ -79,3 +79,22 @@ std::string Tree::toString() {
 Tree::~Tree() {
     delete root;
 }
+
+//added a method to get the elements of a tree into a vector
+void Tree::getElements(TreeNode* node, std::vector<std::string>& elements) {
+    elements.push_back(node->name);
+
+    for (int i = 0; i < node->children.size(); i++) {
+        getElements(node->children[i], elements);
+    }
+}
+//added a method to get the elements of a tree into a vector
+std::vector<std::string> Tree::getElements() {
+    std::vector<std::string> elements;
+
+    if (root != nullptr) {
+        getElements(root, elements);
+    }
+
+    return elements;
+}

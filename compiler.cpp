@@ -148,7 +148,8 @@ int main(int argc, char* argv[]) {
                     for(int i = 0; i<TokensToParse.size(); i++){
                             cout << "\n" <<TokenTypeToString(TokensToParse[i].type) <<endl;
                         }
-                    if(semantic(TokensToParse) == true){
+                    
+                    if(TreeTraverse(abstractTree) == true){
                         
                         cout << "\n" << "INFO SEMANTIC ANALYSIS PASSED ON PROGRAM " << programCount << endl;
                         cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << "ERRORSHERE" << " ERRORS" << endl;

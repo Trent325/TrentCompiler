@@ -11,6 +11,7 @@ using namespace std;
 
 // Forward declarations
 bool semantic(vector<Token> tokenStream);
+bool TreeTraverse(Tree* tree);
 void SymbolTable();
 
 

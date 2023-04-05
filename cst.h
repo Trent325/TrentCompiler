@@ -28,6 +28,8 @@ public:
     void endChildren();
     std::string toString();
     ~Tree();
+    std::vector<std::string> getElements();
+    void getElements(TreeNode* node, std::vector<std::string>& elements); 
 
 };
 

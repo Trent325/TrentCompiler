@@ -19,6 +19,33 @@ unordered_map<int, std::unordered_map<std::string, string>> myHashTable;
 // Forward declarations
 void Scopes();
 
+bool TreeTraverse(Tree* tree){
+    // get a vector of all the node names in the tree
+    std::vector<std::string> elements = tree->getElements();
+
+    // print the vector
+    for (int i = 0; i < elements.size(); i++) {
+        std::cout << elements[i] << " ";
+    }
+
+    for (int i = 0; i < elements.size(); i++) {
+        if(elements[i] == "Block"){
+            scopes++;
+            unordered_map<std::string, string> scope1HashTable;
+            myHashTable[scopes] = scope1HashTable;
+        }
+    }
+
+    // Print out all the hash tables:
+    for (auto& outerPair : myHashTable) {
+        std::cout << "Hash table " << outerPair.first << ":\n";
+        
+    }
+
+    return true;
+
+}
+
 
 // main function to be called to do SA and produce ST
 bool semantic(vector<Token> tokenStream){
@@ -69,19 +96,7 @@ void Scopes(){
     }
 }
 
-// add varDecl to hash map
-void verifyVarDecl(){
-    for (const auto& p : ScopePositions) {
-        for(int i = p.first; i<p.second; i++){
-            if(Tokens[i].type == TokenType::TK_I_TYPE){
-                unordered_map<std::string, string> newInnerHashTable;
-                newInnerHashTable["Integer"] = Tokens[i].lexeme;
-            }
-        }
-        
-    }
-    
-}
+
 
 //to produce symbol table
 void SymbolTable(){
