@@ -56,6 +56,23 @@ bool TreeTraverse(Tree* tree){
             i += 2;
         } else if(elements[i] == "AssignmentStatement"){
             string variableName = elements[i+1];
+            if (variableName.length() > 1) {
+                variableName = elements[i+2];
+                auto it = scopeHashTable.find(variableName);
+                if (it != scopeHashTable.end()) {
+                   string type = get<0>(it->second);
+                   if(type == "int"){
+                    variableName = elements[i+2];
+                    // Change the value of the last boolean in the tuple
+                    auto& my_tuple = scopeHashTable[elements[i+2]];
+                    get<2>(my_tuple) = true;
+                   } else {
+                        string error =  "Error: Type MisMatch variable " + variableName + " of type " + type + " was assigned int ";
+                        errors.push_back(error);
+                        return false;
+                   }
+                }
+            }
             auto it = scopeHashTable.find(variableName);
             if (it != scopeHashTable.end()) {
                 get<1>(it->second) = true; 

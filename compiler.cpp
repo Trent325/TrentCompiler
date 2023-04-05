@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
                         int ErrorCount = CountErrors();
                         cout << "\n" << "INFO SEMANTIC ANALYSIS FAILED ON PROGRAM " << programCount << "\n" << endl;
                         cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
-                        cout << "\n " << "PROGRAM ERRORS : " << endl;
+                        cout << "\n" << "PROGRAM ERRORS : " << endl;
                         PrintErrors();
                         cout << "\n \n" << "PROGRAM WARNINGS: " << endl;
 
