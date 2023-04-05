@@ -13,7 +13,7 @@ int scopes = 0;
 //vector of scopes start and ends
 vector<std::pair<int, int>> ScopePositions;
 //creates a hash table for each scope that can have another hash table of variables
-unordered_map<int, std::unordered_map<std::string, string>> myHashTable;
+unordered_map<int, std::unordered_map<std::string, tuple<std::string, bool, bool>>> myHashTable;
 
 
 // Forward declarations
@@ -22,7 +22,7 @@ bool TreeTraverse(Tree* tree){
     // get a vector of all the node names in the tree
     std::vector<std::string> elements = tree->getElements();
     //create a hash table for each scope 
-    unordered_map<std::string, string> scopeHashTable;
+    unordered_map<std::string, tuple<std::string, bool, bool>> scopeHashTable;
 
     /*cout << "TEST" << endl;
     // print the vector
@@ -46,7 +46,7 @@ bool TreeTraverse(Tree* tree){
             
         }
         else if(elements[i] == "VarDecl"){
-            scopeHashTable[elements[i+1]] = elements[i+2];
+            scopeHashTable[elements[i+1]] = make_tuple(elements[i+2], true, false);;
             i += 2;
         }
     }
@@ -63,15 +63,22 @@ void SymbolTable() {
     cout << "----------------------------------" << endl;
     // Print out all the hash tables in reverse order
     // Create a vector to store the output strings
-    std::vector<std::string> output;
+    vector<string> output;
 
     // Iterate over the outer hash table
     for (auto& outerPair : myHashTable) {
-        std::string tableStr = "Scope " + std::to_string(outerPair.first) + ":";
+        string tableStr = "Scope " + to_string(outerPair.first) + ":";
         // Iterate over the inner hash table
         for (auto& innerPair : outerPair.second) {
             // Add the inner hash table key and value to the table string
-            tableStr += "\n Type: " + innerPair.first + ", Name: " + innerPair.second;
+            auto tupleValue = innerPair.second;
+            //convert booleans to their values 
+            string IsDeclared = get<1>(tupleValue) ? "true" : "false";
+            string IsInit = get<2>(tupleValue) ? "true" : "false";
+            tableStr += "\n Name: " + get<0>(tupleValue) 
+                        + ", Type: " + innerPair.first 
+                        + ", Is Declared : " + IsDeclared 
+                        + ", Is Initialized : " + IsInit;
         }
         // Add the outer and inner hash table elements to the output vector
         output.push_back(tableStr);
@@ -80,7 +87,7 @@ void SymbolTable() {
     // Iterate over the output vector in reverse order
     for (auto it = output.rbegin(); it != output.rend(); ++it) {
         // Print each string to the console
-        std::cout << *it << "\n";
+        cout << *it << "\n";
     }
 }
 
