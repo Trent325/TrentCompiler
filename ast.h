@@ -11,6 +11,10 @@ using namespace std;
 
 // Forward declarations
 Tree* ast(vector<Token> tokenStream);
+void printScopes();
+
+vector<std::tuple<int, int, int>> sortScopeLinesAndPositions();
+
 
 
 #endif // AST_H

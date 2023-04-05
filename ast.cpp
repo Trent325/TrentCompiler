@@ -1,5 +1,8 @@
 #include <vector>
 #include <stdexcept>
+#include <tuple>
+#include <algorithm>
+#include <map>
 
 #include "ast.h" 
 
@@ -9,6 +12,11 @@ using namespace std;
 vector<Token> tokens1;
 int Index = 0;
 string stringToPrint = "\"";
+int CorrectScope = 1;
+int scopeNumber = 1;
+
+vector<tuple<int, pair<int, int>, pair<int, int>>> VectorOfscopes;
+vector<std::tuple<int, int, int>> outputVector;
 
 // Forward declarations
 void match1(string expectedType);
@@ -33,8 +41,61 @@ void CharList1(Tree* tree);
 void BooleanOp1(Tree* tree);
 void Char1(Tree* tree);
 void Space1(Tree* tree);
+void Scopes(pair<int, int> start, pair<int, int> end);
 
-// method to parse strings
+//method to record the scope locations 
+void Scopes(pair<int, int> start, pair<int, int> end) {
+    
+    VectorOfscopes.push_back(make_tuple(scopeNumber, start, end));
+    scopeNumber++;
+
+}
+
+
+// method to print out the current scopes
+void printScopes(){
+    
+    for (int i = 0; i < VectorOfscopes.size(); i++) {
+    auto scope = VectorOfscopes[i];
+    std::cout << std::get<0>(scope) << ": (" << std::get<1>(scope).first << ", " << std::get<1>(scope).second << ") - ("
+        << std::get<2>(scope).first << ", " << std::get<2>(scope).second << ")" << std::endl;
+    }
+
+}
+//attempt to sort scopes 
+vector<std::tuple<int, int, int>> sortScopeLinesAndPositions() {
+    std::vector<std::tuple<int, int, int>> sortedScopes;
+    std::map<int, int> scopeToLineMap;
+    
+    for (const auto& scope : VectorOfscopes) {
+        auto startPair = std::get<1>(scope);
+        int scopeNumber = std::get<0>(scope);
+        
+        if (scopeToLineMap.find(scopeNumber) == scopeToLineMap.end()) {
+            scopeToLineMap[scopeNumber] = startPair.first;
+        }
+        
+        auto endPair = std::get<2>(scope);
+        sortedScopes.push_back(std::make_tuple(scopeNumber, scopeToLineMap[scopeNumber], startPair.second));
+    }
+    
+    std::sort(sortedScopes.begin(), sortedScopes.end(), [](const auto& a, const auto& b) {
+        return std::get<1>(a) < std::get<1>(b);
+    });
+    
+    for (const auto& scope : sortedScopes) {
+        
+        int lineNumber = std::get<1>(scope);
+        int position = std::get<2>(scope);
+        std::cout << "Scope " << CorrectScope << " starts at line " << lineNumber << " position " << position << std::endl;
+        CorrectScope++;
+    }
+    
+    return sortedScopes;
+}
+
+
+// method to parse strings 
 string TokenTypeToString1(TokenType type) {
     switch(type) {
         case TokenType::TK_OPEN_PAREN: return "LEFT_PAREN";
@@ -95,7 +156,7 @@ void match1(TokenType type, Tree* tree) {
             case TokenType::TK_DIGIT:
             case TokenType::TK_TRUE:
             case TokenType::TK_FALSE:
-                tree->addNode(tokens1[Index].lexeme, "leaf");
+                tree->addNodeLocation(tokens1[Index].lexeme, "leaf", tokens1[Index].line, tokens1[Index].position);
                 break;
             case TokenType::TK_PLUS:
                 tree->addNodeBeginnging("ADD", "leaf");
@@ -120,6 +181,8 @@ void match1(TokenType type, Tree* tree) {
 Tree* ast(vector<Token> tokens1tream) {
     tokens1 = tokens1tream;
     Index = 0;
+    VectorOfscopes.clear();
+    int CorrectScope = 1;
 
     Tree* tree = new Tree();
     Program1(tree);
@@ -143,10 +206,18 @@ void Block1(Tree* tree) {
     
 
     tree->addNode("Block", "branch");
+    int startOfScopeline = tokens1[Index].line;
+    int startOfScopePosition = tokens1[Index].position;
+    pair<int, int> Start = make_pair(startOfScopeline, startOfScopePosition);
+    
     match1(TokenType::TK_OPEN_BRACE, tree);
     
     StatementList1(tree);
 
+    int EndOfScopeline = tokens1[Index].line;
+    int EndOfScopePosition = tokens1[Index].position;
+    pair<int, int> End = make_pair(EndOfScopeline, EndOfScopePosition);
+    Scopes(Start, End);
     match1(TokenType::TK_CLOSE_BRACE, tree);
     
     tree->endChildren();

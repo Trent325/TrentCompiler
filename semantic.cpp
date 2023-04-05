@@ -3,6 +3,7 @@
 #include <unordered_map>
 
 #include "parser.h" 
+#include "ast.h" 
 
 using namespace std;
 
@@ -10,6 +11,8 @@ using namespace std;
 int scopes = 0;
 vector<string> errors;
 vector<string> warnings;
+//vector of scopes start and ends
+vector<pair<int, int>> ScopeLoc;
 //creates a hash table for each scope that can have another hash table of variables
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
 
@@ -26,15 +29,18 @@ bool TreeTraverse(Tree* tree){
     //create a hash table for each scope 
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
-    
-    cout << "TEST" << endl;
-    // print the vector
-    for (int i = 0; i < elements.size(); i++) {
-        cout << elements[i] << " ";
-    }
-    cout << "\n TEST" << endl;
-    
+    std::vector<std::tuple<std::string, int, int>> elements1 = tree->getElements1();
 
+    for (int i = 0; i < elements1.size(); i++) {
+        std::string name = std::get<0>(elements1[i]);
+        int line = std::get<1>(elements1[i]);
+        int position = std::get<2>(elements1[i]);
+        std::cout << line << ":" << position << " " << name << std::endl;
+        
+    }
+    
+    cout << "\n" << endl;
+    
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
         //find the amount of scopes
@@ -57,7 +63,7 @@ bool TreeTraverse(Tree* tree){
                 errors.push_back(error);
                 return false;
             }
-            scopeHashTable[elements[i+2]] = make_tuple(elements[i+1], true, false);;
+            scopeHashTable[elements[i+2]] = make_tuple(elements[i+1], true, false);
             i += 2;
         } else if(elements[i] == "AssignmentStatement"){
             string variableName = elements[i+1];
@@ -297,4 +303,5 @@ void clearSemantics(){
     myHashTable.clear();
 
 }
+
 

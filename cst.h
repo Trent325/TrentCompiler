@@ -11,6 +11,8 @@ public:
     std::string name;
     std::vector<TreeNode*> children;
     TreeNode* parent;
+    int line;
+    int position;
 
     TreeNode(std::string name);
     ~TreeNode();
@@ -30,6 +32,9 @@ public:
     ~Tree();
     std::vector<std::string> getElements();
     void getElements(TreeNode* node, std::vector<std::string>& elements); 
+    void getElements1(TreeNode* node, std::vector<std::tuple<std::string, int, int>>& elements, int line, int position);
+    std::vector<std::tuple<std::string, int, int>> getElements1();
+    void addNodeLocation(std::string name, std::string kind, int line, int position);
 
 };
 

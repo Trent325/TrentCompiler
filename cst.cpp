@@ -33,6 +33,24 @@ void Tree::addNode(std::string name, std::string kind) {
         cur = node;
     }
 }
+//add loc with node
+void Tree::addNodeLocation(std::string name, std::string kind, int line, int position) {
+    TreeNode* node = new TreeNode(name);
+
+    if (root == nullptr) {
+        root = node;
+    } else {
+        node->parent = cur;
+        cur->children.push_back(node);
+    }
+
+    if (kind == "branch") {
+        cur = node;
+    }
+
+    node->line = line;
+    node->position = position;
+}
 
 void Tree::addNodeBeginnging(std::string name, std::string kind){
     TreeNode* node = new TreeNode(name);
@@ -94,6 +112,25 @@ std::vector<std::string> Tree::getElements() {
 
     if (root != nullptr) {
         getElements(root, elements);
+    }
+
+    return elements;
+}
+
+//get elements with scope?
+void Tree::getElements1(TreeNode* node, std::vector<std::tuple<std::string, int, int>>& elements, int line, int position) {
+    elements.push_back(std::make_tuple(node->name, line, position));
+
+    for (int i = 0; i < node->children.size(); i++) {
+        getElements1(node->children[i], elements, node->children[i]->line, node->children[i]->position);
+    }
+}
+
+std::vector<std::tuple<std::string, int, int>> Tree::getElements1() {
+    std::vector<std::tuple<std::string, int, int>> elements;
+
+    if (root != nullptr) {
+        getElements1(root, elements, root->line, root->position);
     }
 
     return elements;
