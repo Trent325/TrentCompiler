@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) {
                         cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
                         cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE " << endl;
                         SymbolTable();
+                        clearSemantics();
 
                     } else {
                         int ErrorCount = CountErrors();

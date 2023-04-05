@@ -7,23 +7,19 @@
 using namespace std;
 
 // Global variables
-vector<Token> Tokens;
 int scopes = 0;
 vector<string> errors;
-
-//vector of scopes start and ends
-vector<std::pair<int, int>> ScopePositions;
 //creates a hash table for each scope that can have another hash table of variables
-unordered_map<int, std::unordered_map<std::string, tuple<std::string, bool, bool>>> myHashTable;
+unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
 
 
 // Forward declarations
 
 bool TreeTraverse(Tree* tree){
     // get a vector of all the node names in the tree
-    std::vector<std::string> elements = tree->getElements();
+    vector<string> elements = tree->getElements();
     //create a hash table for each scope 
-    unordered_map<std::string, tuple<std::string, bool, bool>> scopeHashTable;
+    unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
     /*
     cout << "TEST" << endl;
@@ -123,5 +119,13 @@ void SymbolTable() {
         // Print each string to the console
         cout << *it << "\n";
     }
+}
+
+//to clear global variables 
+void clearSemantics(){
+    scopes = 0;
+    errors.clear();
+    myHashTable.clear();
+
 }
 

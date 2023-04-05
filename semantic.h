@@ -15,6 +15,7 @@ void SymbolTable();
 int PrintWarnings();
 int CountErrors();
 void PrintErrors();
+void clearSemantics();
 
 
 #endif // PARSER_H
