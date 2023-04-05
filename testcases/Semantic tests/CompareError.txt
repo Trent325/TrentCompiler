@@ -1,6 +1,5 @@
 {
-    if(4 == "h"){
+    if(6 == true){
         print("no good")
     }
 }$
-

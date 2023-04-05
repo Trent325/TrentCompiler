@@ -14,6 +14,8 @@ unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable
 
 
 // Forward declarations
+bool is_integer(const std::string& str);
+string typeAssigner(string var);
 
 bool TreeTraverse(Tree* tree){
     // get a vector of all the node names in the tree
@@ -81,6 +83,70 @@ bool TreeTraverse(Tree* tree){
                 errors.push_back(error);
                 return false;
             }
+        } else if(elements[i] == "IF EQUALS" || elements[i] == "IF NOT EQUALS" ){
+            string str = elements[i+1];
+            if(is_integer(elements[i+1])){
+                if(is_integer(elements[i+2])){
+                    // do nothing this is correct
+                } else {
+                    //varOne
+                    string varOne = elements[i+1];
+                    string typeOne = typeAssigner(varOne);
+                    //varTwo
+                    string varTwo = elements[i+2];
+                    string typeTwo = typeAssigner(varTwo);
+                    //add error
+                    string error =  "Error: Incorrect Type Comparision of " + varOne + " of type " + typeOne + " to "+ varTwo + " of type "+ typeTwo;
+                    errors.push_back(error);
+                    return false;
+                }
+            } else if(str.length() == 1){
+                //varOne
+                string varOne = elements[i+1];
+                auto it = scopeHashTable.find(varOne);
+                string typeOne = get<0>(it->second);
+                //varTwo
+                string varTwo = elements[i+2];
+                auto two = scopeHashTable.find(varTwo);
+                string typeTwo = get<0>(two->second);
+                if(typeOne == typeTwo){
+                    // do nothing it is correct
+                } else {
+                    string error =  "Error: Incorrect Type Comparision of " + varOne + " of type " + typeOne + " to "+ varTwo + " of type "+ typeTwo;
+                    errors.push_back(error);
+                    return false;
+                }
+            } else if(str == "true" || str == "false"){
+                if(elements[i+2]== "true" || elements[i+2] == "false"){
+                    // do nothing its correct
+                } else {
+                    //varOne
+                    string varOne = elements[i+1];
+                    string typeOne = typeAssigner(varOne);
+                    //varTwo
+                    string varTwo = elements[i+2];
+                    string typeTwo = typeAssigner(varTwo);
+                    //add error
+                    string error =  "Error: Incorrect Type Comparision of " + varOne + " of type " + typeOne + " to "+ varTwo + " of type "+ typeTwo;
+                    errors.push_back(error);
+                    return false;
+                }
+            } else if (str[0] == '"'){
+                if(elements[i+2][0]== '"'){
+                    // do nothing its correct
+                } else {
+                    //varOne
+                    string varOne = elements[i+1];
+                    string typeOne = typeAssigner(varOne);
+                    //varTwo
+                    string varTwo = elements[i+2];
+                    string typeTwo = typeAssigner(varTwo);
+                    //add error
+                    string error =  "Error: Incorrect Type Comparision of " + varOne + " of type " + typeOne + " to "+ varTwo + " of type "+ typeTwo;
+                    errors.push_back(error);
+                    return false;
+                }
+            }
         }
     }
     // add scope hash table to table
@@ -88,6 +154,27 @@ bool TreeTraverse(Tree* tree){
 
     return true;
 
+}
+
+//type assigner for errors
+string typeAssigner(string var){
+    if(is_integer(var)){
+        return "int";
+    }else if(var== "true" || var == "false"){
+        return "boolean";
+    }else if(var[0] == '"'){
+        return "string";
+    }
+}
+
+//check if a string is an integer
+bool is_integer(const std::string& str) {
+    if (str.empty() || ((!isdigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
+        return false;
+    }
+    char* endptr = nullptr;
+    strtol(str.c_str(), &endptr, 10);
+    return (*endptr == '\0');
 }
 
 //to print out errors 
