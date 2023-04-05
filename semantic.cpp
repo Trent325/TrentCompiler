@@ -16,6 +16,8 @@ unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable
 // Forward declarations
 bool is_integer(const std::string& str);
 string typeAssigner(string var);
+bool isInIntExpr(string element);
+bool isValidIntExpr(string element);
 
 bool TreeTraverse(Tree* tree){
     // get a vector of all the node names in the tree
@@ -23,14 +25,14 @@ bool TreeTraverse(Tree* tree){
     //create a hash table for each scope 
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
-    /*
+    
     cout << "TEST" << endl;
     // print the vector
     for (int i = 0; i < elements.size(); i++) {
         cout << elements[i] << " ";
     }
     cout << "\n TEST" << endl;
-    */
+    
 
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
@@ -65,6 +67,18 @@ bool TreeTraverse(Tree* tree){
                    string type = get<0>(it->second);
                    if(type == "int"){
                     variableName = elements[i+2];
+                    int iterator = i+2;
+                    cout << "\n got here"<< elements[iterator] << endl;
+                    while(isInIntExpr(elements[iterator])){
+                        if(isValidIntExpr(elements[iterator])){
+                            cout << "\n got in while here"<< endl;
+                            iterator++;
+                        }else{
+                            string error =  "Error: Type Error " + elements[iterator] + " of type " + type + " was used in int Expr, Can only use variable or digits. ";
+                            errors.push_back(error);
+                            return false;
+                        }
+                    }
                     // Change the value of the last boolean in the tuple
                     auto& my_tuple = scopeHashTable[elements[i+2]];
                     get<2>(my_tuple) = true;
@@ -154,6 +168,29 @@ bool TreeTraverse(Tree* tree){
 
     return true;
 
+}
+
+//to see if it is a valid int Expr
+bool isValidIntExpr(string element){
+    if(is_integer(element)){
+        return true;
+    } else if (element.length() == 1){
+        string var = element;
+        string type = typeAssigner(var);
+        if(type == "int"){
+            return true;
+        }
+        return false;
+    }
+    return false;
+}
+//to see if it is in an intExpr
+bool isInIntExpr(string element){
+    if(element == "VarDecl" || element == "Block" || element == "AssignmentStatement"
+         || element == "PrintStatement"  || element == "WhileStatement" || element == "IfStatement"){
+            return false;
+         }
+         return true;
 }
 
 //type assigner for errors

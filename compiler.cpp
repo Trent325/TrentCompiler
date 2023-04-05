@@ -161,16 +161,10 @@ int main(int argc, char* argv[]) {
                         cout << "\n" << "PROGRAM ERRORS : " << endl;
                         PrintErrors();
                         cout << "\n \n" << "PROGRAM WARNINGS: " << endl;
-
                     }
-                        
-                    
-                    
-
                 }
                 catch(runtime_error & e){
-                    cout << "\nINFO PARSER FAILED ... SKIPPING CST" << endl;
-                    
+                    cout << "\nINFO PARSER FAILED ... SKIPPING CST" << endl; 
                 }
                 programCount++;
                 if (i + 1 < tokens.size()) {
