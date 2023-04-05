@@ -5,6 +5,7 @@
 
 #include "parser.h" 
 #include "ast.h"
+#include "semantic.h"
  
 
 
@@ -143,6 +144,25 @@ int main(int argc, char* argv[]) {
                     cout << "\n" << "INFO AST STARTED ON PROGRAM " << programCount << "\n" << endl;
                     Tree* abstractTree = ast(TokensToParse);
                     cout << abstractTree->toString() << endl;
+                    cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << "\n" << endl;
+                    for(int i = 0; i<TokensToParse.size(); i++){
+                            cout << "\n" <<TokenTypeToString(TokensToParse[i].type) <<endl;
+                        }
+                    if(semantic(TokensToParse) == true){
+                        
+                        cout << "\n" << "INFO SEMANTIC ANALYSIS PASSED ON PROGRAM " << programCount << endl;
+                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << "ERRORSHERE" << " ERRORS" << endl;
+                        cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE \n" << endl;
+                        SymbolTable();
+
+                    } else {
+                        cout << "\n" << "INFO SEMANTIC ANALYSIS FAILED ON PROGRAM " << programCount << "\n" << endl;
+                        cout << "WITH THE FOLLOWING ERRORS AND WARNINGS " << programCount << "\n" << endl;
+
+                    }
+                        
+                    
+                    
 
                 }
                 catch(runtime_error & e){
