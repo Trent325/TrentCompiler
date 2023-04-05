@@ -147,15 +147,19 @@ int main(int argc, char* argv[]) {
                     cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << "\n" << endl;
                     
                     if(TreeTraverse(abstractTree) == true){
-                        
+                        int ErrorCount = CountErrors();
                         cout << "\n" << "INFO SEMANTIC ANALYSIS PASSED ON PROGRAM " << programCount << endl;
-                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << "ERRORSHERE" << " ERRORS" << endl;
+                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
                         cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE " << endl;
                         SymbolTable();
 
                     } else {
+                        int ErrorCount = CountErrors();
                         cout << "\n" << "INFO SEMANTIC ANALYSIS FAILED ON PROGRAM " << programCount << "\n" << endl;
-                        cout << "WITH THE FOLLOWING ERRORS AND WARNINGS " << programCount << "\n" << endl;
+                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
+                        cout << "\n " << "PROGRAM ERRORS : " << endl;
+                        PrintErrors();
+                        cout << "\n \n" << "PROGRAM WARNINGS: " << endl;
 
                     }
                         

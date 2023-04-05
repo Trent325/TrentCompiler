@@ -13,7 +13,8 @@ using namespace std;
 bool TreeTraverse(Tree* tree);
 void SymbolTable();
 int PrintWarnings();
-int PrintErrors();
+int CountErrors();
+void PrintErrors();
 
 
 #endif // PARSER_H

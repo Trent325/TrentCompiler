@@ -33,7 +33,7 @@ bool TreeTraverse(Tree* tree){
     }
     cout << "\n TEST" << endl;
     */
-   
+
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
         //find the amount of scopes
@@ -78,11 +78,16 @@ bool TreeTraverse(Tree* tree){
 }
 
 //to print out errors 
-int PrintErrors(){
+void PrintErrors(){
+    for (string s : errors) {
+        cout << "\n" << s ;
+    }
+}
+//count errors
+int CountErrors(){
     int totalerrors = 0;
     for (string s : errors) {
         totalerrors++;
-        cout << s << " ";
     }
     return totalerrors;
 }
