@@ -46,7 +46,14 @@ bool TreeTraverse(Tree* tree){
             
         }
         else if(elements[i] == "VarDecl"){
-            scopeHashTable[elements[i+1]] = make_tuple(elements[i+2], true, false);;
+            string variableName = elements[i+2];
+             // Check if the variable name already exists in the current scope
+            if (scopeHashTable.find(variableName) != scopeHashTable.end()) {
+                // Variable name already exists in the current scope
+                cout << "Error: variable name " << variableName << " already exists in the current scope." << std::endl;
+                return false;
+            }
+            scopeHashTable[elements[i+2]] = make_tuple(elements[i+1], true, false);;
             i += 2;
         }
     }
@@ -75,8 +82,8 @@ void SymbolTable() {
             //convert booleans to their values 
             string IsDeclared = get<1>(tupleValue) ? "true" : "false";
             string IsInit = get<2>(tupleValue) ? "true" : "false";
-            tableStr += "\n Name: " + get<0>(tupleValue) 
-                        + ", Type: " + innerPair.first 
+            tableStr += "\n Type: " + get<0>(tupleValue) 
+                        + ", Name: " + innerPair.first 
                         + ", Is Declared : " + IsDeclared 
                         + ", Is Initialized : " + IsInit;
         }
