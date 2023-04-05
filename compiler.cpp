@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
                         
                         cout << "\n" << "INFO SEMANTIC ANALYSIS PASSED ON PROGRAM " << programCount << endl;
                         cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << "ERRORSHERE" << " ERRORS" << endl;
-                        cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE \n" << endl;
+                        cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE " << endl;
                         SymbolTable();
 
                     } else {

@@ -1,5 +1,6 @@
 {
     int b
+    b = 1
     {
         int a
     }

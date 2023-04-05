@@ -17,91 +17,70 @@ unordered_map<int, std::unordered_map<std::string, string>> myHashTable;
 
 
 // Forward declarations
-void Scopes();
 
 bool TreeTraverse(Tree* tree){
     // get a vector of all the node names in the tree
     std::vector<std::string> elements = tree->getElements();
+    //create a hash table for each scope 
+    unordered_map<std::string, string> scopeHashTable;
 
+    /*cout << "TEST" << endl;
     // print the vector
     for (int i = 0; i < elements.size(); i++) {
-        std::cout << elements[i] << " ";
+        cout << elements[i] << " ";
     }
-
+    cout << "\n TEST" << endl;
+    */
+    // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
-        if(elements[i] == "Block"){
+        //find the amount of scopes
+        if(elements[i] == "Block" && scopes == 0){
             scopes++;
-            unordered_map<std::string, string> scope1HashTable;
-            myHashTable[scopes] = scope1HashTable;
+        }
+        //once a scope is done add it to the hash mape
+        else if(elements[i] == "Block" && scopes != 0){
+            myHashTable[scopes] = scopeHashTable;
+            scopes++;
+            //create a hash table for this scope 
+            scopeHashTable.clear();
+            
+        }
+        else if(elements[i] == "VarDecl"){
+            scopeHashTable[elements[i+1]] = elements[i+2];
+            i += 2;
         }
     }
+    // add scope hash table to table
+    myHashTable[scopes] = scopeHashTable;
 
-    // Print out all the hash tables:
-    for (auto& outerPair : myHashTable) {
-        std::cout << "Hash table " << outerPair.first << ":\n";
-        
-    }
 
     return true;
 
 }
-
-
-// main function to be called to do SA and produce ST
-bool semantic(vector<Token> tokenStream){
-    Tokens = tokenStream;
-    Scopes();
-    ScopePositions.pop_back();
-    
-    for (const auto& p : ScopePositions) {
-        std::cout << "First value: " << p.first << ", second value: " << p.second << std::endl;
-    }
-     // Print out all the hash tables:
-    for (auto& outerPair : myHashTable) {
-        std::cout << "Hash table " << outerPair.first << ":\n";
-        
-    }
-    
-    return true;
-}
-
-//to record amount of scopes and break them up
-void Scopes(){
-    for (int i = 0; i < Tokens.size(); i++) {
-        int endScope = 0;
-        if(Tokens[i].type == TokenType::TK_OPEN_BRACE){
-            scopes++;
-            int beginScopeIndex = i;
-            for (int j = beginScopeIndex+1; j < Tokens.size(); j++) {
-                if(Tokens[j].type == TokenType::TK_OPEN_BRACE){
-                    endScope++;
-                }
-                if(Tokens[j].type == TokenType::TK_CLOSE_BRACE && endScope == 0 ){
-                    
-                    pair<int, int> myPair = make_pair(beginScopeIndex, i);
-                    ScopePositions.push_back(myPair);
-                    
-                    
-                    beginScopeIndex = j;
-                    //maybe add a new inner hashtable to the outter table here
-                    unordered_map<std::string, string> scope1HashTable;
-                    myHashTable[scopes] = scope1HashTable;
-                }
-                if(Tokens[j].type == TokenType::TK_CLOSE_BRACE && endScope != 0){
-                    endScope--;
-                }
-            }
-
-        }
-    }
-}
-
-
 
 //to produce symbol table
-void SymbolTable(){
+void SymbolTable() {
     cout << "----------------------------------" << endl;
-    cout << "ID___TYPE____SCOPE___LINE:POSITION" << endl;
-    cout << "----------------------------------" << endl;
+    // Print out all the hash tables in reverse order
+    // Create a vector to store the output strings
+    std::vector<std::string> output;
 
+    // Iterate over the outer hash table
+    for (auto& outerPair : myHashTable) {
+        std::string tableStr = "Scope " + std::to_string(outerPair.first) + ":";
+        // Iterate over the inner hash table
+        for (auto& innerPair : outerPair.second) {
+            // Add the inner hash table key and value to the table string
+            tableStr += "\n Type: " + innerPair.first + ", Name: " + innerPair.second;
+        }
+        // Add the outer and inner hash table elements to the output vector
+        output.push_back(tableStr);
+    }
+
+    // Iterate over the output vector in reverse order
+    for (auto it = output.rbegin(); it != output.rend(); ++it) {
+        // Print each string to the console
+        std::cout << *it << "\n";
+    }
 }
+
