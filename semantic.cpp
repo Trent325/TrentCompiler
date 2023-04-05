@@ -9,6 +9,7 @@ using namespace std;
 // Global variables
 int scopes = 0;
 vector<string> errors;
+vector<string> warnings;
 //creates a hash table for each scope that can have another hash table of variables
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
 
@@ -220,6 +221,7 @@ void PrintErrors(){
         cout << "\n" << s ;
     }
 }
+
 //count errors
 int CountErrors(){
     int totalerrors = 0;
@@ -260,6 +262,32 @@ void SymbolTable() {
         // Print each string to the console
         cout << *it << "\n";
     }
+}
+//to print out warnings 
+void PrintWarnings(){
+    for (string s : warnings) {
+        cout << "\n" << s ;
+    }
+}
+
+//count warnings 
+int CountWarnings(){
+    int WarningCount = 0;
+
+    // Iterate over the outer hash table
+    for (auto& outerPair : myHashTable) {
+        for (auto& innerPair : outerPair.second) {
+            auto tupleValue = innerPair.second;
+            // Check if either IsDeclared or IsInit is false
+            if (!get<2>(tupleValue)) {
+                string warning =  "Variable is declared but not initalized";
+                warnings.push_back(warning);
+                WarningCount++;
+            }
+        }
+    }
+    return WarningCount;
+
 }
 
 //to clear global variables 

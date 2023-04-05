@@ -148,19 +148,29 @@ int main(int argc, char* argv[]) {
                     
                     if(TreeTraverse(abstractTree) == true){
                         int ErrorCount = CountErrors();
+                        int warningsCount = CountWarnings();
                         cout << "\n" << "INFO SEMANTIC ANALYSIS PASSED ON PROGRAM " << programCount << endl;
-                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
+                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << warningsCount << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
+                        if(warningsCount > 0){
+                            cout << "\n" << "THE FOLLOWINGS WARNINGS WERE FOUND" <<endl;
+                            PrintWarnings();
+                        }
                         cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE " << endl;
                         SymbolTable();
                         clearSemantics();
 
                     } else {
                         int ErrorCount = CountErrors();
+                        int warningsCount = CountWarnings();
                         cout << "\n" << "INFO SEMANTIC ANALYSIS FAILED ON PROGRAM " << programCount << "\n" << endl;
-                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << "WARNINGSHERE" << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
+                        cout << "\n" << "PROGRAM " << programCount << " PRODUCED " << warningsCount << "WARNINGS AND " << ErrorCount << " ERRORS" << endl;
                         cout << "\n" << "PROGRAM ERRORS : " << endl;
                         PrintErrors();
-                        cout << "\n \n" << "PROGRAM WARNINGS: " << endl;
+                        if(warningsCount > 0){
+                            cout << "\n"  << "PROGRAM WARNINGS: " << endl;
+                            PrintWarnings();
+                        }
+                        
                     }
                 }
                 catch(runtime_error & e){

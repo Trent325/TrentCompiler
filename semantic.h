@@ -12,7 +12,8 @@ using namespace std;
 // Forward declarations
 bool TreeTraverse(Tree* tree);
 void SymbolTable();
-int PrintWarnings();
+void PrintWarnings();
+int CountWarnings();
 int CountErrors();
 void PrintErrors();
 void clearSemantics();
