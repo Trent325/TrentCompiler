@@ -145,9 +145,6 @@ int main(int argc, char* argv[]) {
                     Tree* abstractTree = ast(TokensToParse);
                     cout << abstractTree->toString() << endl;
                     cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << "\n" << endl;
-                    for(int i = 0; i<TokensToParse.size(); i++){
-                            cout << "\n" <<TokenTypeToString(TokensToParse[i].type) <<endl;
-                        }
                     
                     if(TreeTraverse(abstractTree) == true){
                         

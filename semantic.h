@@ -12,6 +12,8 @@ using namespace std;
 // Forward declarations
 bool TreeTraverse(Tree* tree);
 void SymbolTable();
+int PrintWarnings();
+int PrintErrors();
 
 
 #endif // PARSER_H

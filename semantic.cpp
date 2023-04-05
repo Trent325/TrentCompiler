@@ -9,6 +9,7 @@ using namespace std;
 // Global variables
 vector<Token> Tokens;
 int scopes = 0;
+vector<string> errors;
 
 //vector of scopes start and ends
 vector<std::pair<int, int>> ScopePositions;
@@ -24,13 +25,15 @@ bool TreeTraverse(Tree* tree){
     //create a hash table for each scope 
     unordered_map<std::string, tuple<std::string, bool, bool>> scopeHashTable;
 
-    /*cout << "TEST" << endl;
+    /*
+    cout << "TEST" << endl;
     // print the vector
     for (int i = 0; i < elements.size(); i++) {
         cout << elements[i] << " ";
     }
     cout << "\n TEST" << endl;
     */
+   
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
         //find the amount of scopes
@@ -44,25 +47,44 @@ bool TreeTraverse(Tree* tree){
             //create a hash table for this scope 
             scopeHashTable.clear();
             
-        }
-        else if(elements[i] == "VarDecl"){
+        } else if(elements[i] == "VarDecl"){
             string variableName = elements[i+2];
              // Check if the variable name already exists in the current scope
             if (scopeHashTable.find(variableName) != scopeHashTable.end()) {
                 // Variable name already exists in the current scope
-                cout << "Error: variable name " << variableName << " already exists in the current scope." << std::endl;
+                string error =  "Error: variable name " + variableName + " already exists in the current scope.";
+                errors.push_back(error);
                 return false;
             }
             scopeHashTable[elements[i+2]] = make_tuple(elements[i+1], true, false);;
             i += 2;
+        } else if(elements[i] == "AssignmentStatement"){
+            string variableName = elements[i+1];
+            auto it = scopeHashTable.find(variableName);
+            if (it != scopeHashTable.end()) {
+                get<1>(it->second) = true; 
+            } else {
+                string error =  "Error: Initialized varaible " + variableName + " but not declared.";
+                errors.push_back(error);
+                return false;
+            }
         }
     }
     // add scope hash table to table
     myHashTable[scopes] = scopeHashTable;
 
-
     return true;
 
+}
+
+//to print out errors 
+int PrintErrors(){
+    int totalerrors = 0;
+    for (string s : errors) {
+        totalerrors++;
+        cout << s << " ";
+    }
+    return totalerrors;
 }
 
 //to produce symbol table
