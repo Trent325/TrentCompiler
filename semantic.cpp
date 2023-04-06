@@ -1,6 +1,7 @@
 #include <vector>
 #include <stdexcept>
 #include <unordered_map>
+#include <tuple>
 
 #include "parser.h" 
 #include "ast.h" 
@@ -38,15 +39,15 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
     TokenMember = tree->getElements1();
-    /* Prints out AST
+    /* Prints AST for debugging
     for (int i = 0; i < TokenMember.size(); i++) {
         string name = get<0>(TokenMember[i]);
         int line = get<1>(TokenMember[i]);
         int position = get<2>(TokenMember[i]);
         cout << line << ":" << position << " " << name << endl;
         
-    }*/
-   
+    }
+   */
     cout << "\n" << endl;
     
     // traverse through tree elements
@@ -70,6 +71,9 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             i += 2;
         } else if(elements[i] == "AssignmentStatement"){
             string variableName = elements[i+1];
+            //add assignmentStatement
+            pair<string, tuple<string, bool, bool, int>> Symbol(elements[i], make_tuple(elements[i+1], true, false,i));
+            SymbolList.push_back(Symbol);
             if (variableName.length() > 1) {
                 variableName = elements[i+2];
                 auto it = scopeHashTable.find(variableName);
@@ -181,21 +185,19 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     return true;
 
 }
-// check if init
-void initSetter(vector<tuple<int, int, int, int, int>>ScopePositions){
-    //for each scope
-    for(int i = ScopePositions.size() - 1; i >= 0; i--){
-        //for each token
-        for(int j = TokenMember.size() - 1; j >= 0; j--){
-            if(get<0>(TokenMember[j]) == "AssignmentStatement"){
-                if(verifyScope(ScopePositions, i, j)){
-                    //if it is assignment statement and a part of this scope than check if the variable was init, if it was nothing
-                    //if it was not init the variable
-                }
-            }
+
+void setBooleanValue(string key) {
+    // iterate over the outer map
+    for (auto& entry : ResultHashTable) {
+        // check if the inner map has the key
+        if (entry.second.find(key) != entry.second.end()) {
+            // set the second boolean value of the tuple to true
+            get<2>(entry.second[key]) = true;
         }
     }
 }
+
+
 
 //add to hashmap
 bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
@@ -203,13 +205,22 @@ bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
     for(int i = ScopePositions.size() - 1; i >= 0; i--){
         for(int j = SymbolList.size() - 1; j >= 0; j--){
             if(verifyScope(ScopePositions, i, get<3>(SymbolList[j].second))){
-                if (InnerHashTable.find(SymbolList[j].first) != InnerHashTable.end()) {
-                    string error =  "Error: Variable Already Declared in this scope! variable name : " + SymbolList[j].first ;
-                    errors.push_back(error);
-                    return false;
-                }else{
-                    InnerHashTable[SymbolList[j].first] = make_tuple(get<0>(SymbolList[j].second), get<1>(SymbolList[j].second), get<2>(SymbolList[j].second));
-                    SymbolList.erase(SymbolList.begin() + j); // Remove the symbol from the symbol list
+                 if(SymbolList[j].first == "AssignmentStatement" ){
+                    }
+                if(SymbolList[j].first != "AssignmentStatement"){
+                    if (InnerHashTable.find(SymbolList[j].first) != InnerHashTable.end()) {
+                        string error =  "Error: Variable Already Declared in this scope! variable name : " + SymbolList[j].first ;
+                        errors.push_back(error);
+                        return false;
+                    }else{
+                        InnerHashTable[SymbolList[j].first] = make_tuple(get<0>(SymbolList[j].second), get<1>(SymbolList[j].second), get<2>(SymbolList[j].second));
+                        SymbolList.erase(SymbolList.begin() + j); // Remove the symbol from the symbol list
+                    }
+                } else {
+                    if (InnerHashTable.find(get<0>(SymbolList[j].second)) != InnerHashTable.end()) {
+                        setBooleanValue(get<0>(SymbolList[j].second));
+                    }
+
                 }
             }
         }
@@ -228,13 +239,34 @@ bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j
         int ScopeStartPo = get<2>(vector[scope]);
         int ScopeEndLn = get<3>(vector[scope]);
         int ScopeEndPo = get<4>(vector[scope]);
-        if(Thisline >= ScopeStartLn && Thisposition > ScopeStartPo){
+        
+        if(get<0>(TokenMember[j]) == "AssignmentStatement" ){
+            int Thisline = get<1>(TokenMember[j+1]);
+            int Thisposition = get<2>(TokenMember[j+1]);
+            /* for debugging
+            cout << "Assignment: " << get<0>(TokenMember[j]) << endl; 
+            cout << "Thisline: " << Thisline << endl;
+            cout << "Thisposition: " << Thisposition << endl;
+            cout << "ScopeStartLn: " << ScopeStartLn << endl;
+            cout << "ScopeStartPo: " << ScopeStartPo << endl;
+            cout << "ScopeEndLn: " << ScopeEndLn << endl;
+            cout << "ScopeEndPo: " << ScopeEndPo << endl;
+        */
+            if(Thisline >= ScopeStartLn && Thisposition >= ScopeStartPo){
+                cout << "MADE INSIDE IF " <<  endl;
+                if(Thisline <= ScopeEndLn ){
+                    cout << "MADE INSIDE SECONDS " <<  endl;
+                    return true;
+                }
+            }
+        }
+        if(Thisline >= ScopeStartLn && Thisposition >= ScopeStartPo){
             if(Thisline <= ScopeEndLn ){
                 return true;
             }
+
         }
     return false;
-
 }
 
 //to see if it is a valid int Expr
@@ -333,15 +365,19 @@ int CountWarnings(){
             auto tupleValue = innerPair.second;
             // Check if either IsDeclared or IsInit is false
             if (!get<2>(tupleValue)) {
-                string warning =  "Variable "+innerPair.first+" is declared but not initalized";
+                //check if Init in Scope
+                string warning =  "Variable "+innerPair.first+" of type "+ get<0>(tupleValue) +" is declared but not initalized";
                 warnings.push_back(warning);
                 WarningCount++;
             }
+                
         }
     }
-    return WarningCount;
-
+         return WarningCount;
 }
+   
+
+
 
 //to clear global variables 
 void clearSemantics(){

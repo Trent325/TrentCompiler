@@ -1,9 +1,8 @@
 {
 int b
-
 {
-string a
-a = "this is fine"
+    string a
+    a = "this is fine"
 }
 string a /* this is not fine" */
 }$
