@@ -13,7 +13,7 @@ using namespace std;
 Tree* ast(vector<Token> tokenStream);
 void printScopes();
 
-vector<std::tuple<int, int, int>> sortScopeLinesAndPositions();
+vector<tuple<int, int, int, int, int>> sortScopeLinesAndPositions();
 
 
 

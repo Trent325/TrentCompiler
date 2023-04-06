@@ -148,7 +148,7 @@ int main(int argc, char* argv[]) {
                     cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << "\n" << endl;
             
                     cout << "\n" << endl;
-                    vector<tuple<int, int, int>>mV = sortScopeLinesAndPositions();
+                    vector<tuple<int, int, int, int, int>>mV = sortScopeLinesAndPositions();
                     
                     if(TreeTraverse(abstractTree) == true){
                         int ErrorCount = CountErrors();

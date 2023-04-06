@@ -63,36 +63,39 @@ void printScopes(){
 
 }
 //attempt to sort scopes 
-vector<std::tuple<int, int, int>> sortScopeLinesAndPositions() {
-    std::vector<std::tuple<int, int, int>> sortedScopes;
-    std::map<int, int> scopeToLineMap;
+vector<tuple<int, int, int, int, int>> sortScopeLinesAndPositions() {
+    vector<tuple<int, int, int, int, int>> sortedScopes;
+    map<int, tuple<int, int, int>> scopeToLineMap;
     
     for (const auto& scope : VectorOfscopes) {
-        auto startPair = std::get<1>(scope);
-        int scopeNumber = std::get<0>(scope);
+        auto startPair = get<1>(scope);
+        auto endPair = get<2>(scope);
+        int scopeNumber = get<0>(scope);
         
         if (scopeToLineMap.find(scopeNumber) == scopeToLineMap.end()) {
-            scopeToLineMap[scopeNumber] = startPair.first;
+            scopeToLineMap[scopeNumber] = make_tuple(startPair.first, endPair.first, startPair.second);
         }
         
-        auto endPair = std::get<2>(scope);
-        sortedScopes.push_back(std::make_tuple(scopeNumber, scopeToLineMap[scopeNumber], startPair.second));
+        sortedScopes.push_back(make_tuple(scopeNumber, get<0>(scopeToLineMap[scopeNumber]), startPair.second, get<1>(scopeToLineMap[scopeNumber]), endPair.second));
     }
     
-    std::sort(sortedScopes.begin(), sortedScopes.end(), [](const auto& a, const auto& b) {
-        return std::get<1>(a) < std::get<1>(b);
+    sort(sortedScopes.begin(), sortedScopes.end(), [](const auto& a, const auto& b) {
+        return get<1>(a) < get<1>(b);
     });
     
     for (const auto& scope : sortedScopes) {
+        int lineNumberStart = get<1>(scope);
+        int positionStart = get<2>(scope);
+        int lineNumberEnd = get<3>(scope);
+        int positionEnd = get<4>(scope);
         
-        int lineNumber = std::get<1>(scope);
-        int position = std::get<2>(scope);
-        std::cout << "Scope " << CorrectScope << " starts at line " << lineNumber << " position " << position << std::endl;
-        CorrectScope++;
+        cout << "Scope " << get<0>(scope) << " starts at line " << lineNumberStart << " position " << positionStart 
+             << " and ends at line " << lineNumberEnd << " position " << positionEnd << endl;
     }
     
     return sortedScopes;
 }
+
 
 
 // method to parse strings 

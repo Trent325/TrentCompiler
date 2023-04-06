@@ -17,6 +17,7 @@ int CountWarnings();
 int CountErrors();
 void PrintErrors();
 void clearSemantics();
+bool verifyScope(vector<tuple<int, int, int>> vector);
 
 
 

@@ -15,6 +15,7 @@ vector<string> warnings;
 vector<pair<int, int>> ScopeLoc;
 //creates a hash table for each scope that can have another hash table of variables
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
+std::vector<std::tuple<std::string, int, int>> elements1;
 
 
 // Forward declarations
@@ -29,8 +30,8 @@ bool TreeTraverse(Tree* tree){
     //create a hash table for each scope 
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
-    std::vector<std::tuple<std::string, int, int>> elements1 = tree->getElements1();
-
+    elements1 = tree->getElements1();
+/*
     for (int i = 0; i < elements1.size(); i++) {
         std::string name = std::get<0>(elements1[i]);
         int line = std::get<1>(elements1[i]);
@@ -38,7 +39,7 @@ bool TreeTraverse(Tree* tree){
         std::cout << line << ":" << position << " " << name << std::endl;
         
     }
-    
+*/    
     cout << "\n" << endl;
     
     // traverse through tree elements
@@ -174,6 +175,31 @@ bool TreeTraverse(Tree* tree){
     myHashTable[scopes] = scopeHashTable;
 
     return true;
+
+}
+
+//verifyScopes
+/*
+        std::string name = std::get<0>(elements1[i]);
+        int line = std::get<1>(elements1[i]);
+        int position = std::get<2>(elements1[i]);
+*/
+bool verifyScope(vector<tuple<int, int, int>> vector, int scope, int j){
+    int ScopeFound;
+    for (const auto& scope : vector) {
+        //for each scope in the vector
+        //verify that elements1[j] position and line number are within that scope
+        int Targetline = std::get<1>(elements1[j]);
+        int Targetposition = std::get<2>(elements1[j]);
+        int scopeNumber = std::get<0>(scope);
+        int lineNumber = std::get<1>(scope);
+        int position = std::get<2>(scope);
+        if(Targetline >= lineNumber && Targetposition >= position){
+            if(Targetline >= lineNumber && Targetposition >= position){
+
+        }
+        }
+    }
 
 }
 
