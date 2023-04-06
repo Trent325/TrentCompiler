@@ -160,6 +160,7 @@ void match1(TokenType type, Tree* tree) {
             case TokenType::TK_ID:
             case TokenType::TK_I_TYPE:
             case TokenType::TK_S_TYPE:
+            case TokenType::TK_B_TYPE:
             case TokenType::TK_DIGIT:
             case TokenType::TK_TRUE:
             case TokenType::TK_FALSE:
@@ -297,6 +298,8 @@ void VarDecl1(Tree* tree) {
     
     tree->addNode("VarDecl", "branch");
     TokenType type = tokens1[Index].type;
+    string typer = TokenTypeToString1( type);
+    cout <<  "this type" << endl;
     match1(type, tree);
     Id1(tree);
     tree->endChildren();

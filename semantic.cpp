@@ -39,15 +39,15 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
     TokenMember = tree->getElements1();
-    /* Prints AST for debugging
+    /*
     for (int i = 0; i < TokenMember.size(); i++) {
         string name = get<0>(TokenMember[i]);
         int line = get<1>(TokenMember[i]);
         int position = get<2>(TokenMember[i]);
         cout << line << ":" << position << " " << name << endl;
         
-    }
-   */
+    }*/
+   
     cout << "\n" << endl;
     
     // traverse through tree elements
@@ -253,9 +253,7 @@ bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j
             cout << "ScopeEndPo: " << ScopeEndPo << endl;
         */
             if(Thisline >= ScopeStartLn && Thisposition >= ScopeStartPo){
-                cout << "MADE INSIDE IF " <<  endl;
                 if(Thisline <= ScopeEndLn ){
-                    cout << "MADE INSIDE SECONDS " <<  endl;
                     return true;
                 }
             }

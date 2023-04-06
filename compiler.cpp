@@ -145,9 +145,8 @@ int main(int argc, char* argv[]) {
                     cout << "\n" << "INFO AST STARTED ON PROGRAM " << programCount << "\n" << endl;
                     Tree* abstractTree = ast(TokensToParse);
                     cout << abstractTree->toString() << endl;
-                    cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << "\n" << endl;
-            
-                    cout << "\n" << endl;
+                    cout << "\n" << "INFO SEMANTIC ANALYSIS STARTED ON PROGRAM " << programCount << endl;
+        
                     vector<tuple<int, int, int, int, int>>ScopePositions = sortScopeLinesAndPositions();
 
                     if(FindSymbols(abstractTree,ScopePositions) == true){
