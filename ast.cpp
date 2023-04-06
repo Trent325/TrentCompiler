@@ -65,35 +65,39 @@ void printScopes(){
 //attempt to sort scopes 
 vector<tuple<int, int, int, int, int>> sortScopeLinesAndPositions() {
     vector<tuple<int, int, int, int, int>> sortedScopes;
+    vector<tuple<int, int, int, int, int>> Result;
     map<int, tuple<int, int, int>> scopeToLineMap;
     
-    for (const auto& scope : VectorOfscopes) {
-        auto startPair = get<1>(scope);
-        auto endPair = get<2>(scope);
-        int scopeNumber = get<0>(scope);
-        
-        if (scopeToLineMap.find(scopeNumber) == scopeToLineMap.end()) {
-            scopeToLineMap[scopeNumber] = make_tuple(startPair.first, endPair.first, startPair.second);
-        }
-        
-        sortedScopes.push_back(make_tuple(scopeNumber, get<0>(scopeToLineMap[scopeNumber]), startPair.second, get<1>(scopeToLineMap[scopeNumber]), endPair.second));
+    for (size_t i = 0; i < VectorOfscopes.size(); i++) {
+    const auto& scope = VectorOfscopes[i];
+    auto startPair = get<1>(scope);
+    auto endPair = get<2>(scope);
+    int scopeNumber = get<0>(scope);
+    
+    scopeToLineMap[scopeNumber] = make_tuple(startPair.first, endPair.first, startPair.second);
+    
+    sortedScopes.push_back(make_tuple(i, get<0>(scopeToLineMap[scopeNumber]), startPair.second, get<1>(scopeToLineMap[scopeNumber]), endPair.second));
     }
     
     sort(sortedScopes.begin(), sortedScopes.end(), [](const auto& a, const auto& b) {
         return get<1>(a) < get<1>(b);
     });
     
-    for (const auto& scope : sortedScopes) {
+    for (size_t i = 0; i < sortedScopes.size(); i++) {
+        const auto& scope = sortedScopes[i];
         int lineNumberStart = get<1>(scope);
         int positionStart = get<2>(scope);
         int lineNumberEnd = get<3>(scope);
         int positionEnd = get<4>(scope);
         
-        cout << "Scope " << get<0>(scope) << " starts at line " << lineNumberStart << " position " << positionStart 
-             << " and ends at line " << lineNumberEnd << " position " << positionEnd << endl;
+        Result.push_back(make_tuple(i, lineNumberStart, positionStart, lineNumberEnd, positionEnd));
+
+        
+        /*cout << "Scope " << i << " starts at line " << lineNumberStart << " position " << positionStart 
+             << " and ends at line " << lineNumberEnd << " position " << positionEnd << endl;*/
     }
     
-    return sortedScopes;
+    return Result;
 }
 
 

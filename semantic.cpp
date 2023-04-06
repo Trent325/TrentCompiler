@@ -15,31 +15,38 @@ vector<string> warnings;
 vector<pair<int, int>> ScopeLoc;
 //creates a hash table for each scope that can have another hash table of variables
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
-std::vector<std::tuple<std::string, int, int>> elements1;
+
+unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> ResultHashTable;
+
+vector<pair<string, tuple<string, bool, bool, int>>> SymbolList;
+vector<tuple<string, int, int>> TokenMember;
 
 
 // Forward declarations
-bool is_integer(const std::string& str);
+bool is_integer(const string& str);
 string typeAssigner(string var);
 bool isInIntExpr(string element);
 bool isValidIntExpr(string element);
+bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions);
+bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j);
 
-bool TreeTraverse(Tree* tree){
+bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions){
     // get a vector of all the node names in the tree
     vector<string> elements = tree->getElements();
     //create a hash table for each scope 
+    
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
 
-    elements1 = tree->getElements1();
-/*
-    for (int i = 0; i < elements1.size(); i++) {
-        std::string name = std::get<0>(elements1[i]);
-        int line = std::get<1>(elements1[i]);
-        int position = std::get<2>(elements1[i]);
-        std::cout << line << ":" << position << " " << name << std::endl;
+    TokenMember = tree->getElements1();
+    /* Prints out AST
+    for (int i = 0; i < TokenMember.size(); i++) {
+        string name = get<0>(TokenMember[i]);
+        int line = get<1>(TokenMember[i]);
+        int position = get<2>(TokenMember[i]);
+        cout << line << ":" << position << " " << name << endl;
         
-    }
-*/    
+    }*/
+   
     cout << "\n" << endl;
     
     // traverse through tree elements
@@ -49,7 +56,7 @@ bool TreeTraverse(Tree* tree){
             scopes++;
         }
         //once a scope is done add it to the hash mape
-        else if(elements[i] == "Block" && scopes != 0){
+        if(elements[i] == "Block" && scopes != 0){
             myHashTable[scopes] = scopeHashTable;
             scopes++;
             //create a hash table for this scope 
@@ -57,14 +64,9 @@ bool TreeTraverse(Tree* tree){
             
         } else if(elements[i] == "VarDecl"){
             string variableName = elements[i+2];
-             // Check if the variable name already exists in the current scope
-            if (scopeHashTable.find(variableName) != scopeHashTable.end()) {
-                // Variable name already exists in the current scope
-                string error =  "Error: variable name " + variableName + " already exists in the current scope.";
-                errors.push_back(error);
-                return false;
-            }
             scopeHashTable[elements[i+2]] = make_tuple(elements[i+1], true, false);
+            pair<string, tuple<string, bool, bool, int>> Symbol(elements[i+2], make_tuple(elements[i+1], true, false,i+2));
+            SymbolList.push_back(Symbol);
             i += 2;
         } else if(elements[i] == "AssignmentStatement"){
             string variableName = elements[i+1];
@@ -76,10 +78,8 @@ bool TreeTraverse(Tree* tree){
                    if(type == "int"){
                     variableName = elements[i+2];
                     int iterator = i+2;
-                    cout << "\n got here"<< elements[iterator] << endl;
                     while(isInIntExpr(elements[iterator])){
                         if(isValidIntExpr(elements[iterator])){
-                            cout << "\n got in while here"<< endl;
                             iterator++;
                         }else{
                             string error =  "Error: Type Error " + elements[iterator] + " of type " + type + " was used in int Expr, Can only use variable or digits. ";
@@ -96,10 +96,10 @@ bool TreeTraverse(Tree* tree){
                         return false;
                    }
                 }
-            }
+            } 
             auto it = scopeHashTable.find(variableName);
             if (it != scopeHashTable.end()) {
-                get<1>(it->second) = true; 
+                get<2>(it->second) = true; 
             } else {
                 string error =  "Error: Initialized varaible " + variableName + " but not declared.";
                 errors.push_back(error);
@@ -173,33 +173,67 @@ bool TreeTraverse(Tree* tree){
     }
     // add scope hash table to table
     myHashTable[scopes] = scopeHashTable;
+    if(CreateMap(ScopePositions) != true){
+        return false;
+    }
+    //add a function to take scopes in and token stream and decide if they are init in the token stream 
 
     return true;
 
 }
-
-//verifyScopes
-/*
-        std::string name = std::get<0>(elements1[i]);
-        int line = std::get<1>(elements1[i]);
-        int position = std::get<2>(elements1[i]);
-*/
-bool verifyScope(vector<tuple<int, int, int>> vector, int scope, int j){
-    int ScopeFound;
-    for (const auto& scope : vector) {
-        //for each scope in the vector
-        //verify that elements1[j] position and line number are within that scope
-        int Targetline = std::get<1>(elements1[j]);
-        int Targetposition = std::get<2>(elements1[j]);
-        int scopeNumber = std::get<0>(scope);
-        int lineNumber = std::get<1>(scope);
-        int position = std::get<2>(scope);
-        if(Targetline >= lineNumber && Targetposition >= position){
-            if(Targetline >= lineNumber && Targetposition >= position){
-
-        }
+// check if init
+void initSetter(vector<tuple<int, int, int, int, int>>ScopePositions){
+    //for each scope
+    for(int i = ScopePositions.size() - 1; i >= 0; i--){
+        //for each token
+        for(int j = TokenMember.size() - 1; j >= 0; j--){
+            if(get<0>(TokenMember[j]) == "AssignmentStatement"){
+                if(verifyScope(ScopePositions, i, j)){
+                    //if it is assignment statement and a part of this scope than check if the variable was init, if it was nothing
+                    //if it was not init the variable
+                }
+            }
         }
     }
+}
+
+//add to hashmap
+bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
+    unordered_map<string, tuple<string, bool, bool>> InnerHashTable;
+    for(int i = ScopePositions.size() - 1; i >= 0; i--){
+        for(int j = SymbolList.size() - 1; j >= 0; j--){
+            if(verifyScope(ScopePositions, i, get<3>(SymbolList[j].second))){
+                if (InnerHashTable.find(SymbolList[j].first) != InnerHashTable.end()) {
+                    string error =  "Error: Variable Already Declared in this scope! variable name : " + SymbolList[j].first ;
+                    errors.push_back(error);
+                    return false;
+                }else{
+                    InnerHashTable[SymbolList[j].first] = make_tuple(get<0>(SymbolList[j].second), get<1>(SymbolList[j].second), get<2>(SymbolList[j].second));
+                    SymbolList.erase(SymbolList.begin() + j); // Remove the symbol from the symbol list
+                }
+            }
+        }
+        ResultHashTable[i+1] = InnerHashTable;
+        InnerHashTable.clear();
+    }
+    return true;
+}
+// to check the scope
+bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j){
+        int ScopeFound;
+    
+        int Thisline = get<1>(TokenMember[j]);
+        int Thisposition = get<2>(TokenMember[j]);
+        int ScopeStartLn = get<1>(vector[scope]);
+        int ScopeStartPo = get<2>(vector[scope]);
+        int ScopeEndLn = get<3>(vector[scope]);
+        int ScopeEndPo = get<4>(vector[scope]);
+        if(Thisline >= ScopeStartLn && Thisposition > ScopeStartPo){
+            if(Thisline <= ScopeEndLn ){
+                return true;
+            }
+        }
+    return false;
 
 }
 
@@ -238,7 +272,7 @@ string typeAssigner(string var){
 }
 
 //check if a string is an integer
-bool is_integer(const std::string& str) {
+bool is_integer(const string& str) {
     if (str.empty() || ((!isdigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
         return false;
     }
@@ -267,32 +301,19 @@ int CountErrors(){
 void SymbolTable() {
     cout << "----------------------------------" << endl;
     // Print out all the hash tables in reverse order
-    // Create a vector to store the output strings
-    vector<string> output;
-
-    // Iterate over the outer hash table
-    for (auto& outerPair : myHashTable) {
-        string tableStr = "Scope " + to_string(outerPair.first) + ":";
-        // Iterate over the inner hash table
-        for (auto& innerPair : outerPair.second) {
-            // Add the inner hash table key and value to the table string
-            auto tupleValue = innerPair.second;
-            //convert booleans to their values 
-            string IsDeclared = get<1>(tupleValue) ? "true" : "false";
-            string IsInit = get<2>(tupleValue) ? "true" : "false";
-            tableStr += "\n Type: " + get<0>(tupleValue) 
-                        + ", Name: " + innerPair.first 
-                        + ", Is Declared : " + IsDeclared 
-                        + ", Is Initialized : " + IsInit;
+    for (const auto& outerPair : ResultHashTable) {
+        cout << "Scope: " << outerPair.first << endl;
+        for (const auto& innerPair : outerPair.second) {
+            string symbolName = innerPair.first;
+            string symbolType = get<0>(innerPair.second);
+            bool isConst = (get<1>(innerPair.second) ? true : false);
+            bool isinit = (get<2>(innerPair.second) ? true : false);
+            cout << "\tSymbol Name: " << symbolName << endl;
+            cout << "\tSymbol Type: " << symbolType << endl;
+            cout << "\tIs Declared: " << isConst << endl;
+            cout << "\tIs Init: " << isinit << endl;
+            cout << "\n " << endl;
         }
-        // Add the outer and inner hash table elements to the output vector
-        output.push_back(tableStr);
-    }
-
-    // Iterate over the output vector in reverse order
-    for (auto it = output.rbegin(); it != output.rend(); ++it) {
-        // Print each string to the console
-        cout << *it << "\n";
     }
 }
 //to print out warnings 
@@ -312,7 +333,7 @@ int CountWarnings(){
             auto tupleValue = innerPair.second;
             // Check if either IsDeclared or IsInit is false
             if (!get<2>(tupleValue)) {
-                string warning =  "Variable is declared but not initalized";
+                string warning =  "Variable "+innerPair.first+" is declared but not initalized";
                 warnings.push_back(warning);
                 WarningCount++;
             }
