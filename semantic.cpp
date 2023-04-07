@@ -16,11 +16,10 @@ vector<string> warnings;
 vector<pair<int, int>> ScopeLoc;
 //creates a hash table for each scope that can have another hash table of variables
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> myHashTable;
-
 unordered_map<int, unordered_map<string, tuple<string, bool, bool>>> ResultHashTable;
-
 vector<pair<string, tuple<string, bool, bool, int>>> SymbolList;
 vector<tuple<string, int, int>> TokenMember;
+vector<tuple<string, string>> InitVector;
 
 
 // Forward declarations
@@ -35,9 +34,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     // get a vector of all the node names in the tree
     vector<string> elements = tree->getElements();
     //create a hash table for each scope 
-    
     unordered_map<string, tuple<string, bool, bool>> scopeHashTable;
-
     TokenMember = tree->getElements1();
     /*
     for (int i = 0; i < TokenMember.size(); i++) {
@@ -47,9 +44,6 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
         cout << line << ":" << position << " " << name << endl;
         
     }*/
-   
-    cout << "\n" << endl;
-    
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
         //find the amount of scopes
@@ -105,9 +99,21 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             if (it != scopeHashTable.end()) {
                 get<2>(it->second) = true; 
             } else {
-                string error =  "Error: Initialized varaible " + variableName + " but not declared.";
-                errors.push_back(error);
-                return false;
+                // Search in the outer scopes
+                bool found = false;
+                for (auto& outerPair : myHashTable) {
+                    auto innerIt = outerPair.second.find(variableName);
+                    if (innerIt != outerPair.second.end()) {
+                        get<2>(innerIt->second) = true;
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    string error =  "Error: Initialized variable " + variableName + " but not declared.";
+                    errors.push_back(error);
+                    return false;
+                }
             }
         } else if(elements[i] == "IF EQUALS" || elements[i] == "IF NOT EQUALS" ){
             string str = elements[i+1];
@@ -180,12 +186,8 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     if(CreateMap(ScopePositions) != true){
         return false;
     }
-    //add a function to take scopes in and token stream and decide if they are init in the token stream 
-
     return true;
-
 }
-
 void setBooleanValue(string key) {
     // iterate over the outer map
     for (auto& entry : ResultHashTable) {
@@ -196,9 +198,6 @@ void setBooleanValue(string key) {
         }
     }
 }
-
-
-
 //add to hashmap
 bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
     unordered_map<string, tuple<string, bool, bool>> InnerHashTable;
@@ -220,7 +219,6 @@ bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
                     if (InnerHashTable.find(get<0>(SymbolList[j].second)) != InnerHashTable.end()) {
                         setBooleanValue(get<0>(SymbolList[j].second));
                     }
-
                 }
             }
         }
@@ -266,7 +264,6 @@ bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j
         }
     return false;
 }
-
 //to see if it is a valid int Expr
 bool isValidIntExpr(string element){
     if(is_integer(element)){
@@ -289,7 +286,6 @@ bool isInIntExpr(string element){
          }
          return true;
 }
-
 //type assigner for errors
 string typeAssigner(string var){
     if(is_integer(var)){
@@ -300,7 +296,6 @@ string typeAssigner(string var){
         return "string";
     }
 }
-
 //check if a string is an integer
 bool is_integer(const string& str) {
     if (str.empty() || ((!isdigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
@@ -310,14 +305,12 @@ bool is_integer(const string& str) {
     strtol(str.c_str(), &endptr, 10);
     return (*endptr == '\0');
 }
-
 //to print out errors 
 void PrintErrors(){
     for (string s : errors) {
         cout << "\n" << s ;
     }
 }
-
 //count errors
 int CountErrors(){
     int totalerrors = 0;
@@ -326,7 +319,6 @@ int CountErrors(){
     }
     return totalerrors;
 }
-
 //to produce symbol table
 void SymbolTable() {
     cout << "----------------------------------" << endl;
@@ -341,7 +333,18 @@ void SymbolTable() {
             cout << "\tSymbol Name: " << symbolName << endl;
             cout << "\tSymbol Type: " << symbolType << endl;
             cout << "\tIs Declared: " << isConst << endl;
-            cout << "\tIs Init: " << isinit << endl;
+            tuple<string, string> targetTuple = make_tuple(symbolName, symbolType);
+            bool found = false;
+            for (auto& t : InitVector) {
+                if (t == targetTuple) {
+                    cout << "\tIs Init: " << "1" << endl;
+                    found = true;
+                    break;
+                }
+            }
+            if(!found){
+                cout << "\tIs Init: " << "0" << endl;
+            }
             cout << "\n " << endl;
         }
     }
@@ -352,11 +355,9 @@ void PrintWarnings(){
         cout << "\n" << s ;
     }
 }
-
 //count warnings 
 int CountWarnings(){
     int WarningCount = 0;
-
     // Iterate over the outer hash table
     for (auto& outerPair : myHashTable) {
         for (auto& innerPair : outerPair.second) {
@@ -367,22 +368,31 @@ int CountWarnings(){
                 string warning =  "Variable "+innerPair.first+" of type "+ get<0>(tupleValue) +" is declared but not initalized";
                 warnings.push_back(warning);
                 WarningCount++;
+            } else {
+                get<2>(tupleValue) = true;
+                myHashTable[outerPair.first][innerPair.first] = tupleValue;
+                InitVector.push_back(make_tuple(innerPair.first,get<0>(tupleValue)));
             }
-                
         }
     }
          return WarningCount;
 }
-   
-
-
-
 //to clear global variables 
 void clearSemantics(){
     scopes = 0;
     errors.clear();
     myHashTable.clear();
+    int scopes = 0;
+    errors.clear();
+    warnings.clear();
+    ScopeLoc.clear();
+    myHashTable.clear();
+    ResultHashTable.clear();
+    SymbolList.clear();
+    TokenMember.clear();
+    InitVector.clear();
 
+    
 }
 
 

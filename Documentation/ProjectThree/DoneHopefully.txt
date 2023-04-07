@@ -1,0 +1,5 @@
+I beleive I finished this project correctly. Ran all of the tests on Juice C included a bunch more of my own.
+
+Overall I am happy that my project works, but not happy with how I did so. If I did not have 4 other classes I would.
+I would remake my AST to include scopes properly and just do from the bottom up real quick. I did that for a little 
+of this project but I was too far into it to do it the way I realized would be easier.

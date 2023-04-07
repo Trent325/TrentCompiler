@@ -162,6 +162,7 @@ int main(int argc, char* argv[]) {
                         cout << "\n" << "PROGRAM  " << programCount << " SYMBOL TABLE " << endl;
                         SymbolTable();
                         clearSemantics();
+                        ScopePositions.clear();
 
                     } else {
                         int ErrorCount = CountErrors();
@@ -174,7 +175,8 @@ int main(int argc, char* argv[]) {
                             cout << "\n"  << "PROGRAM WARNINGS: " << endl;
                             PrintWarnings();
                         }
-                        
+                        clearSemantics();
+                        ScopePositions.clear();
                     }
                 }
                 catch(runtime_error & e){
