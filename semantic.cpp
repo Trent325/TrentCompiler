@@ -188,6 +188,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     }
     return true;
 }
+//to set a value in the hash map of boolean
 void setBooleanValue(string key) {
     // iterate over the outer map
     for (auto& entry : ResultHashTable) {
@@ -229,7 +230,6 @@ bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions){
 }
 // to check the scope
 bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j){
-        int ScopeFound;
     
         int Thisline = get<1>(TokenMember[j]);
         int Thisposition = get<2>(TokenMember[j]);
@@ -390,9 +390,7 @@ void clearSemantics(){
     ResultHashTable.clear();
     SymbolList.clear();
     TokenMember.clear();
-    InitVector.clear();
-
-    
+    InitVector.clear();   
 }
 
 

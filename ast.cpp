@@ -299,7 +299,6 @@ void VarDecl1(Tree* tree) {
     tree->addNode("VarDecl", "branch");
     TokenType type = tokens1[Index].type;
     string typer = TokenTypeToString1( type);
-    cout <<  "this type" << endl;
     match1(type, tree);
     Id1(tree);
     tree->endChildren();

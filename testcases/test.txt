@@ -2,4 +2,14 @@
     int a 
     boolean a
 }$
-{ int a}$
+{ int a
+    {
+        string b
+        if(true == true){
+            
+        }
+        b = "hello"
+        print(b)
+    }
+    a = 3 +1
+}$
