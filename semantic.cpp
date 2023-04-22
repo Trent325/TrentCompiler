@@ -26,7 +26,7 @@ vector<tuple<string, string>> InitVector;
 bool is_integer(const string& str);
 string typeAssigner(string var);
 bool isInIntExpr(string element);
-bool isValidIntExpr(string element);
+bool isValidIntExpr(string element, string typePassed);
 bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions);
 bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j);
 
@@ -46,6 +46,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
     }*/
     // traverse through tree elements
     for (int i = 0; i < elements.size(); i++) {
+        //cout <<"element: " << elements[i] << endl;
         //find the amount of scopes
         if(elements[i] == "Block" && scopes == 0){
             scopes++;
@@ -77,9 +78,15 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     variableName = elements[i+2];
                     int iterator = i+2;
                     while(isInIntExpr(elements[iterator])){
-                        if(isValidIntExpr(elements[iterator])){
+                        auto currentIntExpr = scopeHashTable.find(elements[iterator]);
+                        string typeInExpr = get<0>(currentIntExpr->second);
+                        cout << typeInExpr << endl;
+                        if(isValidIntExpr(elements[iterator],typeInExpr)) {
                             iterator++;
-                        }else{
+                            if(typeInExpr == "int"){
+                                break;
+                            }
+                        }else {
                             string error =  "Error: Type Error " + elements[iterator] + " of type " + type + " was used in int Expr, Can only use variable or digits. ";
                             errors.push_back(error);
                             return false;
@@ -265,13 +272,17 @@ bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j
     return false;
 }
 //to see if it is a valid int Expr
-bool isValidIntExpr(string element){
+bool isValidIntExpr(string element, string typePassed){
     if(is_integer(element)){
         return true;
     } else if (element.length() == 1){
         string var = element;
         string type = typeAssigner(var);
+        //cout << "THIS IS TYPE: " << type << endl;
         if(type == "int"){
+            return true;
+        }
+        if(typePassed == "int"){
             return true;
         }
         return false;
