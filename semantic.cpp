@@ -104,6 +104,34 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             auto it = scopeHashTable.find(variableName);
             if (it != scopeHashTable.end()) {
                 string symbolType = get<0>(it->second);
+                if(symbolType == "string"){
+                    if(isdigit(elements[i+2][0])){
+                    string error =  "Error: Initialized string " + variableName + " assigned wrong type of int";
+                    errors.push_back(error);
+                    return false;
+                    }
+                    for (const auto& item : SymbolList) {
+                        if (item.first == elements[i+2]) {
+                            string type = get<0>(item.second);
+                            if(type == "int"){
+                                string error =  "Error: Initialized string " + elements[i+2] + " assigned wrong type of int";
+                                errors.push_back(error);
+                                return false;
+                            }
+                        }
+                    }
+                }
+                
+                /*
+                auto variableSearch = scopeHashTable.find(elements[i+2]);
+                if(variableSearch != scopeHashTable.end()){
+                    string type = get<0>(variableSearch->second);
+                    if(type == "int"){
+                        string error =  "Error: Initialized string " + elements[i+2] + " assigned wrong type of int";
+                        errors.push_back(error);
+                        return false;
+                    }
+                }*/
                 if(symbolType == "int"){
                     if(elements[i+2].size() > 1){
                         string error =  "Error: Initialized variable " + variableName + " assigned wrong type of : "+elements[i+2];
@@ -410,5 +438,3 @@ void clearSemantics(){
     TokenMember.clear();
     InitVector.clear();   
 }
-
-
