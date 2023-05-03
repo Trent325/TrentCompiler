@@ -121,17 +121,6 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                         }
                     }
                 }
-                
-                /*
-                auto variableSearch = scopeHashTable.find(elements[i+2]);
-                if(variableSearch != scopeHashTable.end()){
-                    string type = get<0>(variableSearch->second);
-                    if(type == "int"){
-                        string error =  "Error: Initialized string " + elements[i+2] + " assigned wrong type of int";
-                        errors.push_back(error);
-                        return false;
-                    }
-                }*/
                 if(symbolType == "int"){
                     if(elements[i+2].size() > 1){
                         string error =  "Error: Initialized variable " + variableName + " assigned wrong type of : "+elements[i+2];
@@ -157,6 +146,23 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     return false;
                 }
             }
+        } else if(elements[i] == "WhileStatement"){
+            int iterator = i+1;
+            while(elements[iterator] == "IF EQUALS" || elements[iterator] == "IF NOT EQUALS"){
+                iterator++;
+            }
+        
+            string typeOne = typeAssigner(elements[iterator]);
+            string typeTwo = typeAssigner(elements[iterator+1]);
+            
+            if(typeOne != typeTwo){
+                //add error
+                string error =  "Error: Incorrect Type Comparision of " + elements[iterator] + " of type " + typeOne + " to "+ elements[iterator+1] + " of type "+ typeTwo;
+                errors.push_back(error);
+                return false;
+            }
+            i = iterator+1;
+            
         } else if(elements[i] == "IF EQUALS" || elements[i] == "IF NOT EQUALS" ){
             string str = elements[i+1];
             if(is_integer(elements[i+1])){
@@ -340,6 +346,13 @@ string typeAssigner(string var){
         return "boolean";
     }else if(var[0] == '"'){
         return "string";
+    } else {
+        for (const auto& item : SymbolList) {
+            if (item.first == var) {
+                string type = get<0>(item.second);
+                return type;
+            }
+        }
     }
 }
 //check if a string is an integer
