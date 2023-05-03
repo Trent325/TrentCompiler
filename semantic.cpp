@@ -80,7 +80,6 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     while(isInIntExpr(elements[iterator])){
                         auto currentIntExpr = scopeHashTable.find(elements[iterator]);
                         string typeInExpr = get<0>(currentIntExpr->second);
-                        cout << typeInExpr << endl;
                         if(isValidIntExpr(elements[iterator],typeInExpr)) {
                             iterator++;
                             if(typeInExpr == "int"){
@@ -104,6 +103,14 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             } 
             auto it = scopeHashTable.find(variableName);
             if (it != scopeHashTable.end()) {
+                string symbolType = get<0>(it->second);
+                if(symbolType == "int"){
+                    if(elements[i+2].size() > 1){
+                        string error =  "Error: Initialized variable " + variableName + " assigned wrong type of : "+elements[i+2];
+                        errors.push_back(error);
+                        return false;
+                    }
+                }
                 get<2>(it->second) = true; 
             } else {
                 // Search in the outer scopes
