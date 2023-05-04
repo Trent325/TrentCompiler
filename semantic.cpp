@@ -148,21 +148,29 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             }
         } else if(elements[i] == "WhileStatement"){
             int iterator = i+1;
+            int iteratorcounter = 0;
             while(elements[iterator] == "IF EQUALS" || elements[iterator] == "IF NOT EQUALS"){
                 iterator++;
+                iteratorcounter++;
             }
-        
-            string typeOne = typeAssigner(elements[iterator]);
-            string typeTwo = typeAssigner(elements[iterator+1]);
+
+            // do while not a block
             
-            if(typeOne != typeTwo){
-                //add error
-                string error =  "Error: Incorrect Type Comparision of " + elements[iterator] + " of type " + typeOne + " to "+ elements[iterator+1] + " of type "+ typeTwo;
-                errors.push_back(error);
-                return false;
+            while(elements[iterator+2] != "Block"){
+                string typeOne = typeAssigner(elements[iterator]);
+                string typeTwo = typeAssigner(elements[iterator+1]);
+            
+                if(typeOne != typeTwo){
+                    //add error
+                    string error =  "Error: Incorrect Type Comparision of " + elements[iterator] + " of type " + typeOne + " to "+ elements[iterator+1] + " of type "+ typeTwo;
+                    errors.push_back(error);
+                    return false;
+                }
+                iterator++;
+                iterator++;
             }
+            
             i = iterator+1;
-            
         } else if(elements[i] == "IF EQUALS" || elements[i] == "IF NOT EQUALS" ){
             string str = elements[i+1];
             if(is_integer(elements[i+1])){
