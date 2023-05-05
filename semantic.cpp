@@ -65,71 +65,124 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             SymbolList.push_back(Symbol);
             i += 2;
         } else if(elements[i] == "AssignmentStatement"){
+            int AssignmentLocation = i;
+            
             string variableName = elements[i+1];
+           
             //add assignmentStatement
-            pair<string, tuple<string, bool, bool, int>> Symbol(elements[i], make_tuple(elements[i+1], true, false,i));
-            SymbolList.push_back(Symbol);
-            if (variableName.length() > 1) {
-                variableName = elements[i+2];
+            if (variableName != "ADD") {
+                pair<string, tuple<string, bool, bool, int>> Symbol(elements[AssignmentLocation], make_tuple(elements[i], true, false,i));
+                SymbolList.push_back(Symbol);
+                auto& my_tuple = scopeHashTable[variableName];
+                get<2>(my_tuple) = true;
+            }
+            if (variableName == "ADD") {
+                i++;
+                while(elements[i] == "ADD"){
+                    i++;
+                }
+                variableName = elements[i];
+                pair<string, tuple<string, bool, bool, int>> Symbol(elements[AssignmentLocation], make_tuple(elements[i], true, false,i));
+                SymbolList.push_back(Symbol);
                 auto it = scopeHashTable.find(variableName);
                 if (it != scopeHashTable.end()) {
-                   string type = get<0>(it->second);
-                   if(type == "int"){
-                    variableName = elements[i+2];
-                    int iterator = i+2;
+                   string symbolType = get<0>(it->second);
+                   if(symbolType == "int"){
+                    auto& my_tuple = scopeHashTable[variableName];
+                    get<2>(my_tuple) = true;
+                    int iterator = i+1;
                     while(isInIntExpr(elements[iterator])){
                         auto currentIntExpr = scopeHashTable.find(elements[iterator]);
-                        string typeInExpr = get<0>(currentIntExpr->second);
-                        if(isValidIntExpr(elements[iterator],typeInExpr)) {
-                            iterator++;
-                            if(typeInExpr == "int"){
-                                break;
+                        if(currentIntExpr != scopeHashTable.end()){
+                            string typeInExpr = get<0>(currentIntExpr->second);
+                            if(isValidIntExpr(elements[iterator],typeInExpr)) {
+                                iterator++;
+                                if(typeInExpr == "int"){
+                                    
+                                }
+                            }else {
+                                string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
+                                errors.push_back(error);
+                                return false;
                             }
-                        }else {
-                            string error =  "Error: Type Error " + elements[iterator] + " of type " + type + " was used in int Expr, Can only use variable or digits. ";
-                            errors.push_back(error);
-                            return false;
-                        }
-                    }
-                    // Change the value of the last boolean in the tuple
-                    auto& my_tuple = scopeHashTable[elements[i+2]];
-                    get<2>(my_tuple) = true;
-                   } else {
-                        string error =  "Error: Type MisMatch variable " + variableName + " of type " + type + " was assigned int ";
-                        errors.push_back(error);
-                        return false;
-                   }
-                }
-            } 
-            auto it = scopeHashTable.find(variableName);
-            if (it != scopeHashTable.end()) {
-                string symbolType = get<0>(it->second);
-                if(symbolType == "string"){
-                    if(isdigit(elements[i+2][0])){
-                    string error =  "Error: Initialized string " + variableName + " assigned wrong type of int";
-                    errors.push_back(error);
-                    return false;
-                    }
-                    for (const auto& item : SymbolList) {
-                        if (item.first == elements[i+2]) {
-                            string type = get<0>(item.second);
-                            if(type == "int"){
-                                string error =  "Error: Initialized string " + elements[i+2] + " assigned wrong type of int";
+                        } else {
+                            if(isInIntExpr(elements[iterator])){
+                                iterator++; 
+                            }else{
+                                string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
                                 errors.push_back(error);
                                 return false;
                             }
                         }
+                        //
                     }
-                }
-                if(symbolType == "int"){
-                    if(elements[i+2].size() > 1){
-                        string error =  "Error: Initialized variable " + variableName + " assigned wrong type of : "+elements[i+2];
+                    
+                    if(elements[iterator] == "true" || elements[iterator] == "true"){
+                        string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
                         errors.push_back(error);
                         return false;
+                    }else{
+                        i = iterator-1;
+                    }
+            
+                   } 
+                }
+            } else {
+                auto it = scopeHashTable.find(variableName);
+                if (it != scopeHashTable.end()) {
+                    string symbolType = get<0>(it->second);
+                    if(symbolType == "int"){
+                        
+                            if(!isdigit(elements[i+2][0])){
+                                string error =  "Error: Initialized int " + variableName + " assigned wrong type of "+elements[i+1];
+                                errors.push_back(error);
+                                return false;
+                            }
+
+                        } else if(symbolType == "string"){
+                            if(isdigit(elements[i+2][0])){
+                            string error =  "Error: Initialized string " + variableName + " assigned wrong type of int";
+                            errors.push_back(error);
+                            return false;
+                            } else if(elements[i+2] == "true" || elements[i+2] == "false"){
+                                string error =  "Error: Initialized string " + variableName + " assigned wrong type of boolean";
+                                errors.push_back(error);
+                                return false;
+                            }
+                            for (const auto& item : SymbolList) {
+                                if (item.first == elements[i+2]) {
+                                    string type = get<0>(item.second);
+                                    if(type == "int"){
+                                        string error =  "Error: Initialized string " + elements[i+2] + " assigned wrong type of int";
+                                        errors.push_back(error);
+                                        return false;
+                                    }
+                                }
+                            }
+                        } else {
+                            bool found = false;
+                            for (auto& outerPair : myHashTable) {
+                                auto innerIt = outerPair.second.find(variableName);
+                                if (innerIt != outerPair.second.end()) {
+                                    get<2>(innerIt->second) = true;
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                string error =  "Error: Initialized variable " + variableName + " but not declared.";
+                                errors.push_back(error);
+                                return false;
+                            }
+                            //string error =  "Error: Type MisMatch variable " + variableName + " of type " + symbolType + " was assigned int ";
+                            //errors.push_back(error);
+                            //return false;
+                        }
                     }
                 }
-                get<2>(it->second) = true; 
-            } else {
+            
+                /*
+               else {
                 // Search in the outer scopes
                 bool found = false;
                 for (auto& outerPair : myHashTable) {
@@ -145,7 +198,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     errors.push_back(error);
                     return false;
                 }
-            }
+            } */
         } else if(elements[i] == "WhileStatement"){
             int iterator = i+1;
             int iteratorcounter = 0;
@@ -341,9 +394,12 @@ bool isValidIntExpr(string element, string typePassed){
 //to see if it is in an intExpr
 bool isInIntExpr(string element){
     if(element == "VarDecl" || element == "Block" || element == "AssignmentStatement"
-         || element == "PrintStatement"  || element == "WhileStatement" || element == "IfStatement"){
+         || element == "PrintStatement"  || element == "WhileStatement" || element == "IfStatement" 
+            || element == "true" || element == "false"){
             return false;
-         }
+    } else if(element == ""){
+        return false;
+    }
          return true;
 }
 //type assigner for errors
