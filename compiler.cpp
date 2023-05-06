@@ -7,6 +7,7 @@
 #include "parser.h" 
 #include "ast.h"
 #include "semantic.h"
+#include "codeGen.h"
  
 
 
@@ -163,6 +164,9 @@ int main(int argc, char* argv[]) {
                         SymbolTable();
                         clearSemantics();
                         ScopePositions.clear();
+                        //Code Gen code
+                        cout << "\n" << "PROGRAM  " << programCount << " STARTED ON CODE GENERATION FOR 6502a " << endl;
+                        //GenerateCode(abstractTree);
 
                     } else {
                         int ErrorCount = CountErrors();

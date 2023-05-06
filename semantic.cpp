@@ -10,6 +10,8 @@ using namespace std;
 
 // Global variables
 int scopes = 0;
+bool endFlag = false;
+bool foundFlag = false;
 vector<string> errors;
 vector<string> warnings;
 //vector of scopes start and ends
@@ -64,6 +66,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
             pair<string, tuple<string, bool, bool, int>> Symbol(elements[i+2], make_tuple(elements[i+1], true, false,i+2));
             SymbolList.push_back(Symbol);
             i += 2;
+            //myHashTable[scopes] = scopeHashTable;
         } else if(elements[i] == "AssignmentStatement"){
             int AssignmentLocation = i;
             
@@ -71,10 +74,25 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
            
             //add assignmentStatement
             if (variableName != "ADD") {
-                pair<string, tuple<string, bool, bool, int>> Symbol(elements[AssignmentLocation], make_tuple(elements[i], true, false,i));
-                SymbolList.push_back(Symbol);
-                auto& my_tuple = scopeHashTable[variableName];
-                get<2>(my_tuple) = true;
+                string typeOfVar = typeAssigner(variableName);
+                for (int j = 0; j < SymbolList.size(); j++) {
+                    if (SymbolList[j].first == variableName) {
+                        string firstString = get<0>(SymbolList[j].second);
+                        if(firstString == typeOfVar){
+                            pair<string, tuple<string, bool, bool, int>> Symbol(elements[AssignmentLocation], make_tuple(elements[i], true, false,i));
+                            SymbolList.push_back(Symbol);
+                            auto& my_tuple = scopeHashTable[variableName];
+                            get<2>(my_tuple) = true;
+                            foundFlag = true;
+                        }  
+                    }
+                }
+                if(!foundFlag){
+                    string error =  "Error: Initialized variable " + variableName + " but not declared.";
+                    errors.push_back(error);
+                    return false;
+                }
+                foundFlag = false;
             }
             if (variableName == "ADD") {
                 i++;
@@ -82,6 +100,13 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     i++;
                 }
                 variableName = elements[i];
+                string typeOfVar = typeAssigner(variableName);
+                if(typeOfVar != "int"){
+                    string error =  "Error: Type Error " + variableName + " of type " + typeOfVar + " was used in int Expr, Can only use variable or digits. ";
+                    errors.push_back(error);
+                    return false;
+                            
+                }
                 pair<string, tuple<string, bool, bool, int>> Symbol(elements[AssignmentLocation], make_tuple(elements[i], true, false,i));
                 SymbolList.push_back(Symbol);
                 auto it = scopeHashTable.find(variableName);
@@ -97,8 +122,10 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                             string typeInExpr = get<0>(currentIntExpr->second);
                             if(isValidIntExpr(elements[iterator],typeInExpr)) {
                                 iterator++;
-                                if(typeInExpr == "int"){
-                                    
+                                //cout << "in here at element " <<elements[iterator] << "end" << endl;
+                                if(iterator >= elements.size()){
+                                    endFlag = true;
+                                    break;
                                 }
                             }else {
                                 string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
@@ -107,6 +134,7 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                             }
                         } else {
                             if(isInIntExpr(elements[iterator])){
+                                //cout << elements[iterator] << "IN ELSE" << endl;
                                 iterator++; 
                             }else{
                                 string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
@@ -116,8 +144,9 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                         }
                         //
                     }
-                    
-                    if(elements[iterator] == "true" || elements[iterator] == "true"){
+                    if(endFlag == true){
+                        break;
+                    } else if(elements[iterator] == "true" || elements[iterator] == "true"){
                         string error =  "Error: Type Error " + elements[iterator] + " of type " + symbolType+ " was used in int Expr, Can only use variable or digits. ";
                         errors.push_back(error);
                         return false;
@@ -132,7 +161,6 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                 if (it != scopeHashTable.end()) {
                     string symbolType = get<0>(it->second);
                     if(symbolType == "int"){
-                        
                             if(!isdigit(elements[i+2][0])){
                                 string error =  "Error: Initialized int " + variableName + " assigned wrong type of "+elements[i+1];
                                 errors.push_back(error);
@@ -169,6 +197,25 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                                     break;
                                 }
                             }
+                            for (auto it = scopeHashTable.begin(); it != scopeHashTable.end(); it++) {
+                                if (it->first == variableName) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+    /*
+                            for (int j = 0; j < SymbolList.size(); j++) {
+                                if (SymbolList[j].first == variableName) {
+                                    string firstString = get<0>(SymbolList[j].second);
+                                    cout << firstString << " first" << endl;
+                                    if(firstString ==elements[i+2]){
+                                        found = true;
+                                        break;
+                                    }
+                                    
+                                }
+                            }*/
+                             
                             if (!found) {
                                 string error =  "Error: Initialized variable " + variableName + " but not declared.";
                                 errors.push_back(error);
@@ -375,6 +422,7 @@ bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j
 }
 //to see if it is a valid int Expr
 bool isValidIntExpr(string element, string typePassed){
+    //cout << "isVALIDEXPR call " << element << " " << typePassed << endl;
     if(is_integer(element)){
         return true;
     } else if (element.length() == 1){
@@ -393,14 +441,20 @@ bool isValidIntExpr(string element, string typePassed){
 }
 //to see if it is in an intExpr
 bool isInIntExpr(string element){
+    //cout << "at element " << element << endl;
     if(element == "VarDecl" || element == "Block" || element == "AssignmentStatement"
          || element == "PrintStatement"  || element == "WhileStatement" || element == "IfStatement" 
             || element == "true" || element == "false"){
+                //cout << " false in EXPR " <<  endl;
             return false;
     } else if(element == ""){
         return false;
+    } else if(isdigit(element[0]) || element.length() == 1){
+        //cout << " true in EXPR " <<  endl;
+        return true;
     }
-         return true;
+   // cout << " true in EXPR " <<  endl;
+    return true;
 }
 //type assigner for errors
 string typeAssigner(string var){
@@ -514,4 +568,5 @@ void clearSemantics(){
     SymbolList.clear();
     TokenMember.clear();
     InitVector.clear();   
+    endFlag = false;
 }
