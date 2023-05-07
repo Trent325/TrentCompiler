@@ -162,9 +162,19 @@ bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions
                     string symbolType = get<0>(it->second);
                     if(symbolType == "int"){
                             if(!isdigit(elements[i+2][0])){
-                                string error =  "Error: Initialized int " + variableName + " assigned wrong type of "+elements[i+1];
-                                errors.push_back(error);
-                                return false;
+                                bool foundit = false;
+                                for (auto it = scopeHashTable.begin(); it != scopeHashTable.end(); it++) {
+                                    if (it->first == variableName) {
+                                        foundit = true;
+                                        break;
+                                    }
+                                }
+                                if(!foundit){
+                                    string error =  "Error: Initialized int " + variableName + " assigned wrong type of "+elements[i+1];
+                                    errors.push_back(error);
+                                    return false;
+                                }
+                                
                             }
 
                         } else if(symbolType == "string"){
