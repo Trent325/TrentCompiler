@@ -20,6 +20,8 @@ string Tmem = "T";
 //create an index for Opcodes
 int OpIndex = 0;
 string accumlator = "01";
+bool accumlatorLoadFlag = true;
+vector<tuple<string, string, int>> Tnums;
 
 //forward decl
 void AssignTempLocs();
@@ -46,9 +48,18 @@ void GenerateCode(Tree* tree){
             
        } else if(elements[i] == "VarDecl"){
             if(accumlator == "00"){
-                //do nothing dont need to load it 
+                //just store it in memory
+                OpCodes[OpIndex] = "8D";
+                OpIndex++;
+                string TempMindex = Tmem + to_string(memIndex);
+                TmemLoc.push_back(make_tuple(elements[i+2],TempMindex,"00"));
+                memIndex++;
+                OpCodes[OpIndex] = TempMindex;
+                OpIndex++;
+                OpIndex++;
             } else {
                 accumlator = "00";
+                accumlatorLoadFlag = false;
                 OpCodes[OpIndex] = "A9";
                 OpIndex++;
                 OpCodes[OpIndex] = "00";
@@ -72,12 +83,11 @@ void GenerateCode(Tree* tree){
                     i++;
                 }
             }
-            
-            
             if(!is_int(elements[i+2])){
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
-                string memLoc = stringToHex(searchForVarLoc(elements[i+2]));
+                string mem = searchForVarLoc(elements[i+2]);
+                string memLoc = stringToHex(mem);
                 OpCodes[OpIndex] = memLoc;
                 OpIndex++;
             } else {
@@ -86,6 +96,12 @@ void GenerateCode(Tree* tree){
                 OpCodes[OpIndex] = stringToHex(elements[i+2]);
                 OpIndex++;
                 AssignVarVal(elements[i+1],elements[i+2]);
+                OpCodes[OpIndex] = "8D";
+                OpIndex++;
+                string loc = searchForVarLoc(elements[i+1]);
+                string memLoc = stringToHex(loc);
+                OpCodes[OpIndex] = memLoc;
+                OpIndex++;
             }
             
        } else {
@@ -93,25 +109,48 @@ void GenerateCode(Tree* tree){
        } 
     }
     OpCodes[OpIndex] = "00";
-    OpIndex++;
+    OpIndex++; OpIndex++;
     AssignTempLocs();
 }
 void AssignTempLocs(){
+    string TnumsFound;
+    string hex_str;
+    string hex_value;
+    int opIndexer;
     for (int i = 0; i < 256; i++) {
         char Fchar = OpCodes[i][0];
         if(Fchar == 'T'){
             for (auto t : TmemLoc) {
-                cout << get<1>(t) << " H" << endl;
                 if (get<1>(t) == OpCodes[i]) {
-                    string hex_str = intToHex(OpIndex);
-                    OpCodes[i] = hex_str;
-                    string hex_value = stringToHex(get<2>(t));
-                    OpCodes[OpIndex] = hex_value;
+                    bool found = false;
+                    for (auto const &elem : Tnums) {
+                        if (get<0>(elem) == OpCodes[i]) {
+                            found = true;
+                            TnumsFound = get<1>(elem);
+                            opIndexer = get<2>(elem);
+                            break;
+                        }
+                    }
+                    if(found == true){
+                        hex_str = TnumsFound;
+                        hex_value = "00";
+                        
+                    } else {
+                        hex_str = intToHex(OpIndex);
+                        Tnums.push_back(make_tuple(OpCodes[i],hex_str,OpIndex));
+                        hex_value = stringToHex(get<2>(t));
+                        opIndexer = OpIndex;
+                        
+                    }
+                        OpCodes[i] = hex_str;
+                        OpCodes[opIndexer] = hex_value;
+                        OpIndex++;
                 }
             }
         }
     }
 }
+
 string searchForVarLoc(string searchString) {
     string result = "";
     for (auto tuple : TmemLoc) {
