@@ -1,0 +1,8 @@
+{
+    boolean a
+    boolean b
+    a = true
+    b = false
+    print(a)
+    print(b)
+}$

@@ -1,0 +1,5 @@
+Print Boolean 
+do add inside of Print
+Figure out more test cases for scope 1 and then move on to either
+scope 2
+or ifs

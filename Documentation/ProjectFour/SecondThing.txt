@@ -1,1 +1,2 @@
 I noticed that most of the hall of fame project store a true a false and a 0 at the backpack of the code gen. This looks important for a flag and such so I will probably do this.
+Update I did this in the backpatch method of the codegen file, works pretty good
