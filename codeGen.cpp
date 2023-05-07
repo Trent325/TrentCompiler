@@ -178,7 +178,19 @@ void PrintStatement(int i){
         OpCodes[OpIndex] = "FF";
         OpIndex++;
     } else if(type == "boolean"){
-
+        OpCodes[OpIndex] = "AC";
+        OpIndex++;
+        string loc = searchForVarLoc(elements[i+1]);
+        string memLoc = stringToHex(loc);
+        OpCodes[OpIndex] = memLoc;
+        OpIndex++;
+        OpIndex++;
+        OpCodes[OpIndex] = "A2";
+        OpIndex++;
+        OpCodes[OpIndex] = "02";
+        OpIndex++;
+        OpCodes[OpIndex] = "FF";
+        OpIndex++;
     } else {
 
     }
