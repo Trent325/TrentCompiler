@@ -39,6 +39,7 @@ void intAdd(int i);
 string searchForVarType(string searchString);
 vector<string> writeStringToHeap(const string& input);
 void StringAssignment(int i);
+void backpatch();
 
 void GenerateCode(Tree* tree){
     //fill Op codes
@@ -97,6 +98,33 @@ void GenerateCode(Tree* tree){
             } else if(type == "string"){
                 StringAssignment(i);
                 i+=2;
+            }else if(type == "boolean"){
+                cout << "in boolean" << endl;
+                if(elements[i+2] == "false"){
+                    OpCodes[OpIndex] = "A9";
+                    OpIndex++;
+                    OpCodes[OpIndex] = "F4";
+                    OpIndex++;
+                    OpCodes[OpIndex] = "8D";
+                    OpIndex++;
+                    string mem = searchForVarLoc(elements[i+1]);
+                    string memLoc = stringToHex(mem);
+                    OpCodes[OpIndex] = memLoc;
+                    OpIndex++;
+                    OpIndex++;
+                } else if(elements[i+2] == "true"){
+                    OpCodes[OpIndex] = "A9";
+                    OpIndex++;
+                    OpCodes[OpIndex] = "FA";
+                    OpIndex++;
+                    OpCodes[OpIndex] = "8D";
+                    OpIndex++;
+                    string mem = searchForVarLoc(elements[i+1]);
+                    string memLoc = stringToHex(mem);
+                    OpCodes[OpIndex] = memLoc;
+                    OpIndex++;
+                    OpIndex++;
+                }
             } else if(!is_int(elements[i+2])){
                 OpCodes[OpIndex] = "AD";
                 OpIndex++;
@@ -136,6 +164,20 @@ void GenerateCode(Tree* tree){
     OpCodes[OpIndex] = "00";
     OpIndex++; OpIndex++;
     AssignTempLocs();
+    backpatch();
+}
+void backpatch(){
+    OpCodes[244] = "66";
+    OpCodes[245] = "61";
+    OpCodes[246] = "6C";
+    OpCodes[247] = "73";
+    OpCodes[248] = "65";
+    OpCodes[249] = "00";
+    OpCodes[250] = "74";
+    OpCodes[251] = "72";
+    OpCodes[252] = "75";
+    OpCodes[253] = "65";
+    OpCodes[254] = "00";
 }
 void StringAssignment(int i){
     OpCodes[OpIndex] = "A9";
