@@ -1,0 +1,8 @@
+{
+    boolean a 
+    a = true
+}$
+{
+    boolean a 
+    a = false
+}$

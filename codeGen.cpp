@@ -25,7 +25,7 @@ bool accumlatorLoadFlag = true;
 vector<tuple<string, string, int>> Tnums;
 vector<string> elements;
 //make an int to track string loc in heap (start of heap for strings)
-int SLocHeap = 234;
+int SLocHeap = 238;
 
 //forward decl
 void AssignTempLocs();
@@ -138,8 +138,6 @@ void GenerateCode(Tree* tree){
             
        }else if(elements[i] == "PrintStatement"){
             PrintStatement(i);
-            
-            
        } else {
         //default error case
        } 
@@ -166,7 +164,19 @@ void PrintStatement(int i){
         OpCodes[OpIndex] = "FF";
         OpIndex++;
     } else if(type == "string"){
-
+        OpCodes[OpIndex] = "AC";
+        OpIndex++;
+        string loc = searchForVarLoc(elements[i+1]);
+        string memLoc = stringToHex(loc);
+        OpCodes[OpIndex] = memLoc;
+        OpIndex++;
+        OpIndex++;
+        OpCodes[OpIndex] = "A2";
+        OpIndex++;
+        OpCodes[OpIndex] = "02";
+        OpIndex++;
+        OpCodes[OpIndex] = "FF";
+        OpIndex++;
     } else if(type == "boolean"){
 
     } else {
@@ -217,11 +227,14 @@ void StringAssignment(int i){
     OpCodes[OpIndex] = "A9";
     OpIndex++;
     vector<string> HeapString = writeStringToHeap(elements[i+2]);
-    SLocHeap += HeapString.size();
+    int HeapLoc = SLocHeap + HeapString.size()-1;
     string heapLoc = intToHex(SLocHeap);
+    int terminate = SLocHeap + HeapString.size();
+    OpCodes[terminate] = "00";
+    cout << terminate << endl;
     for(int i = HeapString.size()-1; i>=0;i--){
-        OpCodes[SLocHeap] = HeapString[i];
-        SLocHeap--;
+        OpCodes[HeapLoc] = HeapString[i];
+        HeapLoc--;
     }
     OpCodes[OpIndex] = heapLoc;
     OpIndex++;
