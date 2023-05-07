@@ -19,9 +19,11 @@ vector<tuple<string, string,string>> TmemLoc;
 string Tmem = "T";
 //create an index for Opcodes
 int OpIndex = 0;
+int TotalAdds = 0;
 string accumlator = "01";
 bool accumlatorLoadFlag = true;
 vector<tuple<string, string, int>> Tnums;
+vector<string> elements;
 
 //forward decl
 void AssignTempLocs();
@@ -31,6 +33,7 @@ bool is_int(const string& str);
 string searchForVarLoc(string searchString);
 string searchForVarVal(string searchTerm);
 void AssignVarVal(string searchTerm, string value);
+void intAdd(int i);
 
 void GenerateCode(Tree* tree){
     //fill Op codes
@@ -38,7 +41,7 @@ void GenerateCode(Tree* tree){
         OpCodes[i] = "00";
     }
     // get a vector of all the node names in the tree
-    vector<string> elements = tree->getElements();
+    elements = tree->getElements();
     //create an index for temp values
     int memIndex = 0;
     for (int i = 0; i < elements.size(); i++) {
@@ -76,14 +79,16 @@ void GenerateCode(Tree* tree){
             
        } else if(elements[i] == "AssignmentStatement"){
             if(elements[i+1] == "ADD"){
-                int TotalAdds = 0;
-                i++;
-                while(elements[i] == "ADD"){
+                
+                while(elements[i+1] == "ADD"){
                     TotalAdds++;
                     i++;
                 }
-            }
-            if(!is_int(elements[i+2])){
+                intAdd(i);
+               
+                i += TotalAdds + 2;
+                TotalAdds = 0;
+            } else if(!is_int(elements[i+2])){
                 OpCodes[OpIndex] = "AD";
                 OpIndex++;
                 //now search for Variable Index load that into next one 
@@ -122,6 +127,56 @@ void GenerateCode(Tree* tree){
     OpCodes[OpIndex] = "00";
     OpIndex++; OpIndex++;
     AssignTempLocs();
+}
+void intAdd(int i){
+     bool isSaved = false;
+                for(int j = TotalAdds+2; j>0; j--){
+                    if(!is_int(elements[i+j])){
+                        if(j+1 == 2){
+                            OpCodes[OpIndex] = "6D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                            OpCodes[OpIndex] = "8D";
+                            OpIndex++;
+                            string MLOC = searchForVarLoc(elements[j+i]);
+                            OpCodes[OpIndex] = MLOC;
+                            OpIndex++;
+                            break;
+                        }
+                    } else {
+                        OpCodes[OpIndex] = "A9";
+                        OpIndex++;
+                        string adder = stringToHex(elements[i+j]);
+                        OpCodes[OpIndex] = adder;
+                        OpIndex++;
+                    }
+                    if(!isSaved){
+                        OpCodes[OpIndex] = "8D";
+                        OpIndex++;
+                        OpCodes[OpIndex] = "FF";
+                        OpIndex++;
+                        OpIndex++;
+                        isSaved = true;
+                    } else {
+                        if(j-1 != 1){
+                            OpCodes[OpIndex] = "6D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                            OpCodes[OpIndex] = "8D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                        } else {
+                            // do nothing for now
+                        }
+                            
+                    }
+                }
 }
 void AssignTempLocs(){
     string TnumsFound;
@@ -230,5 +285,6 @@ void resetCodeGen(){
     }
     TmemLoc.clear();
     OpIndex = 0;
+    elements.clear();
 
 }
