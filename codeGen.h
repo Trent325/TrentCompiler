@@ -10,5 +10,7 @@
 using namespace std;
 
 void GenerateCode(Tree* tree);
+void PrintCodes();
+void resetCodeGen();
 
 #endif // codeGen

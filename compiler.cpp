@@ -165,8 +165,10 @@ int main(int argc, char* argv[]) {
                         clearSemantics();
                         ScopePositions.clear();
                         //Code Gen code
-                        cout << "\n" << "PROGRAM  " << programCount << " STARTED ON CODE GENERATION FOR 6502a " << endl;
-                        //GenerateCode(abstractTree);
+                        cout << "\n" << "PROGRAM  " << programCount << " STARTED ON CODE GENERATION FOR 6502a \n" << endl;
+                        GenerateCode(abstractTree);
+                        PrintCodes();
+                        resetCodeGen();
 
                     } else {
                         int ErrorCount = CountErrors();

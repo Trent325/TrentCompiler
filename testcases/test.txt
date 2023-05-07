@@ -1,7 +1,4 @@
 {
-    int b
-    string b
-    {
-        int a
-    }
+    int a
+    a = 4
 }$
