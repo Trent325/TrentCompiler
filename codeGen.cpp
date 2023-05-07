@@ -40,6 +40,8 @@ string searchForVarType(string searchString);
 vector<string> writeStringToHeap(const string& input);
 void StringAssignment(int i);
 void backpatch();
+void BooleanAssignment(int i);
+void PrintStatement(int i);
 
 void GenerateCode(Tree* tree){
     //fill Op codes
@@ -100,31 +102,8 @@ void GenerateCode(Tree* tree){
                 i+=2;
             }else if(type == "boolean"){
                 cout << "in boolean" << endl;
-                if(elements[i+2] == "false"){
-                    OpCodes[OpIndex] = "A9";
-                    OpIndex++;
-                    OpCodes[OpIndex] = "F4";
-                    OpIndex++;
-                    OpCodes[OpIndex] = "8D";
-                    OpIndex++;
-                    string mem = searchForVarLoc(elements[i+1]);
-                    string memLoc = stringToHex(mem);
-                    OpCodes[OpIndex] = memLoc;
-                    OpIndex++;
-                    OpIndex++;
-                } else if(elements[i+2] == "true"){
-                    OpCodes[OpIndex] = "A9";
-                    OpIndex++;
-                    OpCodes[OpIndex] = "FA";
-                    OpIndex++;
-                    OpCodes[OpIndex] = "8D";
-                    OpIndex++;
-                    string mem = searchForVarLoc(elements[i+1]);
-                    string memLoc = stringToHex(mem);
-                    OpCodes[OpIndex] = memLoc;
-                    OpIndex++;
-                    OpIndex++;
-                }
+                BooleanAssignment(i);
+                i+=2;
             } else if(!is_int(elements[i+2])){
                 OpCodes[OpIndex] = "AD";
                 OpIndex++;
@@ -157,6 +136,10 @@ void GenerateCode(Tree* tree){
                 OpIndex++;
             }
             
+       }else if(elements[i] == "PrintStatement"){
+            PrintStatement(i);
+            
+            
        } else {
         //default error case
        } 
@@ -165,6 +148,57 @@ void GenerateCode(Tree* tree){
     OpIndex++; OpIndex++;
     AssignTempLocs();
     backpatch();
+}
+void PrintStatement(int i){
+    string type = searchForVarType(elements[i+1]);
+    if(type == "int"){
+        OpCodes[OpIndex] = "AC";
+        OpIndex++;
+        string loc = searchForVarLoc(elements[i+1]);
+        string memLoc = stringToHex(loc);
+        OpCodes[OpIndex] = memLoc;
+        OpIndex++;
+        OpIndex++;
+        OpCodes[OpIndex] = "A2";
+        OpIndex++;
+        OpCodes[OpIndex] = "01";
+        OpIndex++;
+        OpCodes[OpIndex] = "FF";
+        OpIndex++;
+    } else if(type == "string"){
+
+    } else if(type == "boolean"){
+
+    } else {
+
+    }
+}
+void BooleanAssignment(int i){
+    if(elements[i+2] == "false"){
+        OpCodes[OpIndex] = "A9";
+        OpIndex++;
+        OpCodes[OpIndex] = "F4";
+        OpIndex++;
+        OpCodes[OpIndex] = "8D";
+        OpIndex++;
+        string mem = searchForVarLoc(elements[i+1]);
+        string memLoc = stringToHex(mem);
+        OpCodes[OpIndex] = memLoc;
+        OpIndex++;
+        OpIndex++;
+    } else if(elements[i+2] == "true"){
+        OpCodes[OpIndex] = "A9";
+        OpIndex++;
+        OpCodes[OpIndex] = "FA";
+        OpIndex++;
+        OpCodes[OpIndex] = "8D";
+        OpIndex++;
+        string mem = searchForVarLoc(elements[i+1]);
+        string memLoc = stringToHex(mem);
+        OpCodes[OpIndex] = memLoc;
+        OpIndex++;
+        OpIndex++;
+    }
 }
 void backpatch(){
     OpCodes[244] = "66";
