@@ -84,6 +84,15 @@ void GenerateCode(Tree* tree){
                 }
             }
             if(!is_int(elements[i+2])){
+                OpCodes[OpIndex] = "AD";
+                OpIndex++;
+                //now search for Variable Index load that into next one 
+                //TODO search and load from memory
+                string MLOC = searchForVarLoc(elements[i+1]);
+                OpCodes[OpIndex] = MLOC;
+                OpIndex++;
+                OpCodes[OpIndex] = "00";
+                OpIndex++;
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
                 string mem = searchForVarLoc(elements[i+2]);
