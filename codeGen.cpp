@@ -88,16 +88,17 @@ void GenerateCode(Tree* tree){
                 OpIndex++;
                 //now search for Variable Index load that into next one 
                 //TODO search and load from memory
-                string MLOC = searchForVarLoc(elements[i+1]);
+                string MLOC = searchForVarLoc(elements[i+2]);
                 OpCodes[OpIndex] = MLOC;
                 OpIndex++;
                 OpCodes[OpIndex] = "00";
                 OpIndex++;
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
-                string mem = searchForVarLoc(elements[i+2]);
+                string mem = searchForVarLoc(elements[i+1]);
                 string memLoc = stringToHex(mem);
                 OpCodes[OpIndex] = memLoc;
+                OpIndex++;
                 OpIndex++;
             } else {
                 OpCodes[OpIndex] = "A9";
@@ -110,6 +111,7 @@ void GenerateCode(Tree* tree){
                 string loc = searchForVarLoc(elements[i+1]);
                 string memLoc = stringToHex(loc);
                 OpCodes[OpIndex] = memLoc;
+                OpIndex++;
                 OpIndex++;
             }
             
