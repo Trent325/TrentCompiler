@@ -13,8 +13,8 @@ using namespace std;
 //create a vector of OP code to print
 string OpCodes[256];
 //create a vector for Temp Memory Locations
-vector<tuple<string, string,string>> TmemLoc;
-//           varname|T Index|value
+vector<tuple<string, string,string,string>> TmemLoc;
+//           varname|T Index|value|Tyoe
 //create a string for TempValues
 string Tmem = "T";
 //create an index for Opcodes
@@ -24,6 +24,8 @@ string accumlator = "01";
 bool accumlatorLoadFlag = true;
 vector<tuple<string, string, int>> Tnums;
 vector<string> elements;
+//make an int to track string loc in heap (start of heap for strings)
+int SLocHeap = 234;
 
 //forward decl
 void AssignTempLocs();
@@ -34,6 +36,9 @@ string searchForVarLoc(string searchString);
 string searchForVarVal(string searchTerm);
 void AssignVarVal(string searchTerm, string value);
 void intAdd(int i);
+string searchForVarType(string searchString);
+vector<string> writeStringToHeap(const string& input);
+void StringAssignment(int i);
 
 void GenerateCode(Tree* tree){
     //fill Op codes
@@ -55,11 +60,12 @@ void GenerateCode(Tree* tree){
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
                 string TempMindex = Tmem + to_string(memIndex);
-                TmemLoc.push_back(make_tuple(elements[i+2],TempMindex,"00"));
+                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1]));
                 memIndex++;
                 OpCodes[OpIndex] = TempMindex;
                 OpIndex++;
                 OpIndex++;
+                i+= 2;
             } else {
                 accumlator = "00";
                 accumlatorLoadFlag = false;
@@ -70,7 +76,7 @@ void GenerateCode(Tree* tree){
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
                 string TempMindex = Tmem + to_string(memIndex);
-                TmemLoc.push_back(make_tuple(elements[i+2],TempMindex,"00"));
+                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1]));
                 memIndex++;
                 OpCodes[OpIndex] = TempMindex;
                 OpIndex++;
@@ -78,6 +84,7 @@ void GenerateCode(Tree* tree){
             }
             
        } else if(elements[i] == "AssignmentStatement"){
+            string type = searchForVarType(elements[i+1]);
             if(elements[i+1] == "ADD"){
                 
                 while(elements[i+1] == "ADD"){
@@ -85,9 +92,11 @@ void GenerateCode(Tree* tree){
                     i++;
                 }
                 intAdd(i);
-               
                 i += TotalAdds + 2;
                 TotalAdds = 0;
+            } else if(type == "string"){
+                StringAssignment(i);
+                i+=2;
             } else if(!is_int(elements[i+2])){
                 OpCodes[OpIndex] = "AD";
                 OpIndex++;
@@ -127,6 +136,44 @@ void GenerateCode(Tree* tree){
     OpCodes[OpIndex] = "00";
     OpIndex++; OpIndex++;
     AssignTempLocs();
+}
+void StringAssignment(int i){
+    OpCodes[OpIndex] = "A9";
+    OpIndex++;
+    vector<string> HeapString = writeStringToHeap(elements[i+2]);
+    SLocHeap += HeapString.size();
+    string heapLoc = intToHex(SLocHeap);
+    for(int i = HeapString.size()-1; i>=0;i--){
+        OpCodes[SLocHeap] = HeapString[i];
+        SLocHeap--;
+    }
+    OpCodes[OpIndex] = heapLoc;
+    OpIndex++;
+    OpCodes[OpIndex] = "8D";
+    OpIndex++;
+    string mem = searchForVarLoc(elements[i+1]);
+    string memLoc = stringToHex(mem);
+    OpCodes[OpIndex] = memLoc;
+    OpIndex++;
+    OpIndex++;
+}
+vector<string> writeStringToHeap(const string& input) {
+    vector<string> result;
+    ostringstream hex_stream;
+    hex_stream << hex << setfill('0') << uppercase << noskipws;
+    
+    for (char c : input) {
+        
+        hex_stream << setw(2) << static_cast<int>(c);
+        if(hex_stream.str() != "22"){
+            result.push_back(hex_stream.str());
+            hex_stream.str(""); // clear the stream for the next character
+        }
+        hex_stream.str("");
+        
+    }
+    
+    return result;
 }
 void intAdd(int i){
      bool isSaved = false;
@@ -222,6 +269,16 @@ string searchForVarLoc(string searchString) {
     for (auto tuple : TmemLoc) {
         if (get<0>(tuple) == searchString) {
             result = get<1>(tuple);
+            break;
+        }
+    }
+    return result;
+}
+string searchForVarType(string searchString) {
+    string result = "";
+    for (auto tuple : TmemLoc) {
+        if (get<0>(tuple) == searchString) {
+            result = get<3>(tuple);
             break;
         }
     }
