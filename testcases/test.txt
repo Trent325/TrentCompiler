@@ -2,11 +2,10 @@
     string a
     a = "hello" 
     print(a)
-    string b
-    b = "cat" 
-    print(b)
-    string c
-    c = "the" 
-    print(c)
-
+    {
+        string a
+        a = "the" 
+        print(a)
+    }
+    int b
 }$
