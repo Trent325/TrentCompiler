@@ -285,10 +285,10 @@ void StringAssignment(int i){
     OpCodes[OpIndex] = "A9";
     OpIndex++;
     vector<string> HeapString = writeStringToHeap(elements[i+2]);
-    int HeapLoc = SLocHeap + HeapString.size()-1;
+    int HeapLoc = SLocHeap + HeapString.size();
     string heapLoc = intToHex(SLocHeap);
-    int terminate = SLocHeap + HeapString.size();
-    OpCodes[terminate] = "00";
+    OpCodes[HeapLoc] = "00";
+    HeapLoc--;
     for(int i = HeapString.size()-1; i>=0;i--){
         OpCodes[HeapLoc] = HeapString[i];
         HeapLoc--;
@@ -297,12 +297,13 @@ void StringAssignment(int i){
     OpIndex++;
     OpCodes[OpIndex] = "8D";
     OpIndex++;
-    string mem = searchForVarLoc(elements[i+1],  i+1);
+    string mem = searchForVarLoc(elements[i+1], i+1);
     string memLoc = stringToHex(mem);
     OpCodes[OpIndex] = memLoc;
     OpIndex++;
     OpIndex++;
 }
+
 vector<string> writeStringToHeap(const string& input) {
     vector<string> result;
     ostringstream hex_stream;

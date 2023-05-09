@@ -1,0 +1,11 @@
+{
+    string a
+    a = "hello" 
+    print(a)
+    {
+        string a
+        a = "the" 
+        print(a)
+    }
+    int b
+}$
