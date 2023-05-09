@@ -13,8 +13,8 @@ using namespace std;
 //create a vector of OP code to print
 string OpCodes[256];
 //create a vector for Temp Memory Locations
-vector<tuple<string, string,string,string>> TmemLoc;
-//           varname|T Index|value|Tyoe
+vector<tuple<string, string,string,string, int>> TmemLoc;
+//           varname|T Index|value|Type
 //create a string for TempValues
 string Tmem = "T";
 //create an index for Opcodes
@@ -24,6 +24,7 @@ string accumlator = "01";
 bool accumlatorLoadFlag = true;
 vector<tuple<string, string, int>> Tnums;
 vector<string> elements;
+vector<pair<string, int>> Scopes;
 //make an int to track string loc in heap (start of heap for strings)
 int SLocHeap = 238;
 bool isPrint = true;
@@ -34,7 +35,7 @@ void AssignTempLocs();
 string stringToHex(string nonHex);
 string intToHex(int index);
 bool is_int(const string& str);
-string searchForVarLoc(string searchString);
+string searchForVarLoc(string searchString, int  i);
 string searchForVarVal(string searchTerm);
 void AssignVarVal(string searchTerm, string value);
 void intAdd(int i);
@@ -52,23 +53,25 @@ void GenerateCode(Tree* tree){
     for (int i = 0; i < 256; i++) {
         OpCodes[i] = "00";
     }
+    
     // get a vector of all the node names in the tree
     elements = tree->getElements();
     //create an index for temp values
     int memIndex = 0;
     for (int i = 0; i < elements.size(); i++) {
-       cout <<"element: " << elements[i] << endl;
+       //cout <<"element: " << elements[i] << endl;
 
        if(elements[i] == "Block"){
-            
+            //was gonna use this but I did something I should have done a while ago 
+            //thats a reoccuring theme here, after I do something I want to do it with best practice but i just dont
+            //Probably gonna remake this over the summer
        } else if(elements[i] == "VarDecl"){
-        cout << " in vardecl" << endl;
             if(accumlator == "00"){
                 //just store it in memory
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
                 string TempMindex = Tmem + to_string(memIndex);
-                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1]));
+                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1],Scopes[i+2].second));
                 memIndex++;
                 OpCodes[OpIndex] = TempMindex;
                 OpIndex++;
@@ -84,7 +87,7 @@ void GenerateCode(Tree* tree){
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
                 string TempMindex = Tmem + to_string(memIndex);
-                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1]));
+                TmemLoc.push_back(make_tuple(elements[i+2], TempMindex,"00", elements[i+1], Scopes[i+2].second));
                 memIndex++;
                 OpCodes[OpIndex] = TempMindex;
                 OpIndex++;
@@ -94,7 +97,6 @@ void GenerateCode(Tree* tree){
        } else if(elements[i] == "AssignmentStatement"){
             string type = searchForVarType(elements[i+1]);
             if(elements[i+1] == "ADD"){
-                
                 while(elements[i+1] == "ADD"){
                     TotalAdds++;
                     i++;
@@ -106,7 +108,6 @@ void GenerateCode(Tree* tree){
                 StringAssignment(i);
                 i+=2;
             }else if(type == "boolean"){
-                cout << "in boolean" << endl;
                 BooleanAssignment(i);
                 i+=2;
             } else if(!is_int(elements[i+2])){
@@ -114,14 +115,14 @@ void GenerateCode(Tree* tree){
                 OpIndex++;
                 //now search for Variable Index load that into next one 
                 //TODO search and load from memory
-                string MLOC = searchForVarLoc(elements[i+2]);
+                string MLOC = searchForVarLoc(elements[i+2], i+2);
                 OpCodes[OpIndex] = MLOC;
                 OpIndex++;
                 OpCodes[OpIndex] = "00";
                 OpIndex++;
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
-                string mem = searchForVarLoc(elements[i+1]);
+                string mem = searchForVarLoc(elements[i+1], i+1);
                 string memLoc = stringToHex(mem);
                 OpCodes[OpIndex] = memLoc;
                 OpIndex++;
@@ -134,7 +135,7 @@ void GenerateCode(Tree* tree){
                 AssignVarVal(elements[i+1],elements[i+2]);
                 OpCodes[OpIndex] = "8D";
                 OpIndex++;
-                string loc = searchForVarLoc(elements[i+1]);
+                string loc = searchForVarLoc(elements[i+1], i+2);
                 string memLoc = stringToHex(loc);
                 OpCodes[OpIndex] = memLoc;
                 OpIndex++;
@@ -164,12 +165,20 @@ void GenerateCode(Tree* tree){
     AssignTempLocs();
     backpatch();
 }
+void AssignScope(const vector<pair<string, int>>& vec) {
+    for (const auto& p : vec) {
+        Scopes.push_back(make_pair(p.first, p.second));
+    }
+    /*for (const auto& p : Scopes) {
+        cout << p.first << " in " << p.second << endl;
+    }*/
+}
 void PrintStatement(int i){
     string type = searchForVarType(elements[i+1]);
     if(type == "int"){
         OpCodes[OpIndex] = "AC";
         OpIndex++;
-        string loc = searchForVarLoc(elements[i+1]);
+        string loc = searchForVarLoc(elements[i+1], i+1);
         string memLoc = stringToHex(loc);
         OpCodes[OpIndex] = memLoc;
         OpIndex++;
@@ -183,7 +192,7 @@ void PrintStatement(int i){
     } else if(type == "string"){
         OpCodes[OpIndex] = "AC";
         OpIndex++;
-        string loc = searchForVarLoc(elements[i+1]);
+        string loc = searchForVarLoc(elements[i+1], i+1);
         string memLoc = stringToHex(loc);
         OpCodes[OpIndex] = memLoc;
         OpIndex++;
@@ -197,7 +206,7 @@ void PrintStatement(int i){
     } else if(type == "boolean"){
         OpCodes[OpIndex] = "AC";
         OpIndex++;
-        string loc = searchForVarLoc(elements[i+1]);
+        string loc = searchForVarLoc(elements[i+1], i+1);
         string memLoc = stringToHex(loc);
         OpCodes[OpIndex] = memLoc;
         OpIndex++;
@@ -209,7 +218,6 @@ void PrintStatement(int i){
         OpCodes[OpIndex] = "FF";
         OpIndex++;
     } else if(isPrintADD) {
-        cout << "got here" << endl;
         OpCodes[OpIndex] = "AC";
         OpIndex++;
         OpCodes[OpIndex] = "FF";
@@ -241,7 +249,7 @@ void BooleanAssignment(int i){
         OpIndex++;
         OpCodes[OpIndex] = "8D";
         OpIndex++;
-        string mem = searchForVarLoc(elements[i+1]);
+        string mem = searchForVarLoc(elements[i+1], i+1);
         string memLoc = stringToHex(mem);
         OpCodes[OpIndex] = memLoc;
         OpIndex++;
@@ -253,7 +261,7 @@ void BooleanAssignment(int i){
         OpIndex++;
         OpCodes[OpIndex] = "8D";
         OpIndex++;
-        string mem = searchForVarLoc(elements[i+1]);
+        string mem = searchForVarLoc(elements[i+1],  i+1);
         string memLoc = stringToHex(mem);
         OpCodes[OpIndex] = memLoc;
         OpIndex++;
@@ -281,7 +289,6 @@ void StringAssignment(int i){
     string heapLoc = intToHex(SLocHeap);
     int terminate = SLocHeap + HeapString.size();
     OpCodes[terminate] = "00";
-    cout << terminate << endl;
     for(int i = HeapString.size()-1; i>=0;i--){
         OpCodes[HeapLoc] = HeapString[i];
         HeapLoc--;
@@ -290,7 +297,7 @@ void StringAssignment(int i){
     OpIndex++;
     OpCodes[OpIndex] = "8D";
     OpIndex++;
-    string mem = searchForVarLoc(elements[i+1]);
+    string mem = searchForVarLoc(elements[i+1],  i+1);
     string memLoc = stringToHex(mem);
     OpCodes[OpIndex] = memLoc;
     OpIndex++;
@@ -326,8 +333,9 @@ void intAdd(int i){
                             OpIndex++;
                             OpCodes[OpIndex] = "8D";
                             OpIndex++;
-                            string MLOC = searchForVarLoc(elements[j+i]);
+                            string MLOC = searchForVarLoc(elements[j+i], j+i);
                             OpCodes[OpIndex] = MLOC;
+                            OpIndex++;
                             OpIndex++;
                             break;
                         }
@@ -376,7 +384,7 @@ void intPrintAdd(int i){
                             OpIndex++;
                             OpCodes[OpIndex] = "8D";
                             OpIndex++;
-                            string MLOC = searchForVarLoc(elements[j+i]);
+                            string MLOC = searchForVarLoc(elements[j+i], j+i);
                             OpCodes[OpIndex] = MLOC;
                             OpIndex++;
                             break;
@@ -440,6 +448,7 @@ void AssignTempLocs(){
                     bool found = false;
                     for (auto const &elem : Tnums) {
                         if (get<0>(elem) == OpCodes[i]) {
+                            
                             found = true;
                             TnumsFound = get<1>(elem);
                             opIndexer = get<2>(elem);
@@ -466,12 +475,15 @@ void AssignTempLocs(){
     }
 }
 
-string searchForVarLoc(string searchString) {
+string searchForVarLoc(string searchString, int i) {
     string result = "";
     for (auto tuple : TmemLoc) {
         if (get<0>(tuple) == searchString) {
-            result = get<1>(tuple);
-            break;
+            if(get<4>(tuple) == Scopes[i].second){
+                result = get<1>(tuple);
+                break;
+            }
+            
         }
     }
     return result;

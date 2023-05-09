@@ -18,6 +18,7 @@ int CountErrors();
 void PrintErrors();
 void clearSemantics();
 bool verifyScope(vector<tuple<int, int, int, int, int>> vector);
+vector<tuple<string, string, string>> SymbolTableForCodeGen();
 
 
 

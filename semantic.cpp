@@ -31,6 +31,7 @@ bool isInIntExpr(string element);
 bool isValidIntExpr(string element, string typePassed);
 bool CreateMap(vector<tuple<int, int, int, int, int>>ScopePositions);
 bool verifyScope(vector<tuple<int, int, int, int, int>> vector, int scope, int j);
+vector<tuple<string, string, string>> SymbolTableForCodeGen();
 
 bool FindSymbols(Tree* tree,vector<tuple<int, int, int, int, int>>ScopePositions){
     // get a vector of all the node names in the tree
@@ -535,6 +536,22 @@ void SymbolTable() {
             cout << "\n " << endl;
         }
     }
+}
+vector<tuple<string, string, string>> SymbolTableForCodeGen() {
+    vector<tuple<string, string, string>> tableData;
+
+    for (const auto& outerPair : ResultHashTable) {
+        string scope = to_string(outerPair.first);
+
+        for (const auto& innerPair : outerPair.second) {
+            string symbolName = innerPair.first;
+            string symbolType = get<0>(innerPair.second);
+
+            tableData.push_back(make_tuple(symbolName, scope, symbolType));
+        }
+    }
+
+    return tableData;
 }
 //to print out warnings 
 void PrintWarnings(){

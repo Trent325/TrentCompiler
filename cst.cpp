@@ -98,6 +98,23 @@ Tree::~Tree() {
     delete root;
 }
 
+std::vector<std::pair<std::string, int>> Tree::toScope() {
+    std::vector<std::pair<std::string, int>> traversalResult;
+    std::function<void(TreeNode*, int)> expand = [&](TreeNode* node, int scope) {
+        if (node->children.size() == 0) {
+            traversalResult.push_back(std::make_pair("[" + node->name + "]", scope));
+        } else {
+            traversalResult.push_back(std::make_pair("<" + node->name + ">", scope));
+            for (int i = 0; i < node->children.size(); i++) {
+                expand(node->children[i], scope + 1);
+            }
+        }
+    };
+    expand(root, 0);
+    return traversalResult;
+}
+
+
 //added a method to get the elements of a tree into a vector
 void Tree::getElements(TreeNode* node, std::vector<std::string>& elements) {
     elements.push_back(node->name);

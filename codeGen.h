@@ -12,5 +12,6 @@ using namespace std;
 void GenerateCode(Tree* tree);
 void PrintCodes();
 void resetCodeGen();
+void AssignScope(const vector<pair<string, int>>& vec);
 
 #endif // codeGen

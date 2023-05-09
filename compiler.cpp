@@ -166,6 +166,8 @@ int main(int argc, char* argv[]) {
                         ScopePositions.clear();
                         //Code Gen code
                         cout << "\n" << "PROGRAM  " << programCount << " STARTED ON CODE GENERATION FOR 6502a \n" << endl;
+                        vector<pair<string, int>> result = abstractTree->toScope();
+                        AssignScope(result);
                         GenerateCode(abstractTree);
                         PrintCodes();
                         resetCodeGen();

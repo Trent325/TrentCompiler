@@ -35,6 +35,7 @@ public:
     void getElements1(TreeNode* node, std::vector<std::tuple<std::string, int, int>>& elements, int line, int position);
     std::vector<std::tuple<std::string, int, int>> getElements1();
     void addNodeLocation(std::string name, std::string kind, int line, int position);
+    std::vector<std::pair<std::string, int>> toScope();
 
 };
 
