@@ -26,6 +26,8 @@ vector<tuple<string, string, int>> Tnums;
 vector<string> elements;
 //make an int to track string loc in heap (start of heap for strings)
 int SLocHeap = 238;
+bool isPrint = true;
+bool isPrintADD = false;
 
 //forward decl
 void AssignTempLocs();
@@ -42,6 +44,8 @@ void StringAssignment(int i);
 void backpatch();
 void BooleanAssignment(int i);
 void PrintStatement(int i);
+bool isInt(const string& str); 
+void intPrintAdd(int i);
 
 void GenerateCode(Tree* tree){
     //fill Op codes
@@ -58,6 +62,7 @@ void GenerateCode(Tree* tree){
        if(elements[i] == "Block"){
             
        } else if(elements[i] == "VarDecl"){
+        cout << " in vardecl" << endl;
             if(accumlator == "00"){
                 //just store it in memory
                 OpCodes[OpIndex] = "8D";
@@ -137,7 +142,19 @@ void GenerateCode(Tree* tree){
             }
             
        }else if(elements[i] == "PrintStatement"){
+            if(elements[i+1] == "ADD"){
+                while(elements[i+1] == "ADD"){
+                    TotalAdds++;
+                    i++;
+                }
+                isPrint = false;
+                intPrintAdd(i);
+                i += TotalAdds + 2;
+                TotalAdds = 0;
+                isPrintADD = true;
+            }
             PrintStatement(i);
+            isPrintADD = false;
        } else {
         //default error case
        } 
@@ -191,9 +208,30 @@ void PrintStatement(int i){
         OpIndex++;
         OpCodes[OpIndex] = "FF";
         OpIndex++;
+    } else if(isPrintADD) {
+        cout << "got here" << endl;
+        OpCodes[OpIndex] = "AC";
+        OpIndex++;
+        OpCodes[OpIndex] = "FF";
+        OpIndex++;
+        OpIndex++;
+        OpCodes[OpIndex] = "A2";
+        OpIndex++;
+        OpCodes[OpIndex] = "01";
+        OpIndex++;
+        OpCodes[OpIndex] = "FF";
+        OpIndex++;
     } else {
-
     }
+}
+//check if a string is an integer
+bool isInt(const string& str) {
+    if (str.empty() || ((!isdigit(str[0])) && (str[0] != '-') && (str[0] != '+'))) {
+        return false;
+    }
+    char* endptr = nullptr;
+    strtol(str.c_str(), &endptr, 10);
+    return (*endptr == '\0');
 }
 void BooleanAssignment(int i){
     if(elements[i+2] == "false"){
@@ -323,6 +361,69 @@ void intAdd(int i){
                             // do nothing for now
                         }
                             
+                    }
+                }
+}
+void intPrintAdd(int i){
+     bool isSaved = false;
+                for(int j = TotalAdds+2; j>0; j--){
+                    if(!is_int(elements[i+j])){
+                        if(j+1 == 2){
+                            OpCodes[OpIndex] = "6D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                            OpCodes[OpIndex] = "8D";
+                            OpIndex++;
+                            string MLOC = searchForVarLoc(elements[j+i]);
+                            OpCodes[OpIndex] = MLOC;
+                            OpIndex++;
+                            break;
+                        }
+                    } else {
+                        if(isPrintADD){
+                            OpCodes[OpIndex] = "6D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                            OpCodes[OpIndex] = "8D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                        } else { 
+                            OpCodes[OpIndex] = "A9";
+                            OpIndex++;
+                            string adder = stringToHex(elements[i+j]);
+                            OpCodes[OpIndex] = adder;
+                            OpIndex++;
+                        }
+                    }
+                    if(!isSaved){
+                        if(!isPrint){
+                            isPrint = true;
+                        }else {
+                            OpCodes[OpIndex] = "8D";
+                            OpIndex++;
+                            OpCodes[OpIndex] = "FF";
+                            OpIndex++;
+                            OpIndex++;
+                            isSaved = true;
+                            }
+                        
+                    } else {
+                        OpCodes[OpIndex] = "6D";
+                        OpIndex++;
+                        OpCodes[OpIndex] = "FF";
+                        OpIndex++;
+                        OpIndex++;
+                        OpCodes[OpIndex] = "8D";
+                        OpIndex++;
+                        OpCodes[OpIndex] = "FF";
+                        OpIndex++;
+                        OpIndex++;    
                     }
                 }
 }
