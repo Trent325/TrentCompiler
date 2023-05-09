@@ -174,50 +174,7 @@ void AssignScope(const vector<pair<string, int>>& vec) {
     }*/
 }
 void PrintStatement(int i){
-    string type = searchForVarType(elements[i+1]);
-    if(type == "int"){
-        OpCodes[OpIndex] = "AC";
-        OpIndex++;
-        string loc = searchForVarLoc(elements[i+1], i+1);
-        string memLoc = stringToHex(loc);
-        OpCodes[OpIndex] = memLoc;
-        OpIndex++;
-        OpIndex++;
-        OpCodes[OpIndex] = "A2";
-        OpIndex++;
-        OpCodes[OpIndex] = "01";
-        OpIndex++;
-        OpCodes[OpIndex] = "FF";
-        OpIndex++;
-    } else if(type == "string"){
-        OpCodes[OpIndex] = "AC";
-        OpIndex++;
-        string loc = searchForVarLoc(elements[i+1], i+1);
-        string memLoc = stringToHex(loc);
-        OpCodes[OpIndex] = memLoc;
-        OpIndex++;
-        OpIndex++;
-        OpCodes[OpIndex] = "A2";
-        OpIndex++;
-        OpCodes[OpIndex] = "02";
-        OpIndex++;
-        OpCodes[OpIndex] = "FF";
-        OpIndex++;
-    } else if(type == "boolean"){
-        OpCodes[OpIndex] = "AC";
-        OpIndex++;
-        string loc = searchForVarLoc(elements[i+1], i+1);
-        string memLoc = stringToHex(loc);
-        OpCodes[OpIndex] = memLoc;
-        OpIndex++;
-        OpIndex++;
-        OpCodes[OpIndex] = "A2";
-        OpIndex++;
-        OpCodes[OpIndex] = "02";
-        OpIndex++;
-        OpCodes[OpIndex] = "FF";
-        OpIndex++;
-    } else if(isPrintADD) {
+    if(i+1 >= elements.size()){
         OpCodes[OpIndex] = "AC";
         OpIndex++;
         OpCodes[OpIndex] = "FF";
@@ -230,7 +187,65 @@ void PrintStatement(int i){
         OpCodes[OpIndex] = "FF";
         OpIndex++;
     } else {
+        string type = searchForVarType(elements[i+1]);
+        if(type == "int"){
+            OpCodes[OpIndex] = "AC";
+            OpIndex++;
+            string loc = searchForVarLoc(elements[i+1], i+1);
+            string memLoc = stringToHex(loc);
+            OpCodes[OpIndex] = memLoc;
+            OpIndex++;
+            OpIndex++;
+            OpCodes[OpIndex] = "A2";
+            OpIndex++;
+            OpCodes[OpIndex] = "01";
+            OpIndex++;
+            OpCodes[OpIndex] = "FF";
+            OpIndex++;
+        } else if(type == "string"){
+            OpCodes[OpIndex] = "AC";
+            OpIndex++;
+            string loc = searchForVarLoc(elements[i+1], i+1);
+            string memLoc = stringToHex(loc);
+            OpCodes[OpIndex] = memLoc;
+            OpIndex++;
+            OpIndex++;
+            OpCodes[OpIndex] = "A2";
+            OpIndex++;
+            OpCodes[OpIndex] = "02";
+            OpIndex++;
+            OpCodes[OpIndex] = "FF";
+            OpIndex++;
+        } else if(type == "boolean"){
+            OpCodes[OpIndex] = "AC";
+            OpIndex++;
+            string loc = searchForVarLoc(elements[i+1], i+1);
+            string memLoc = stringToHex(loc);
+            OpCodes[OpIndex] = memLoc;
+            OpIndex++;
+            OpIndex++;
+            OpCodes[OpIndex] = "A2";
+            OpIndex++;
+            OpCodes[OpIndex] = "02";
+            OpIndex++;
+            OpCodes[OpIndex] = "FF";
+            OpIndex++;
+        } else if(isPrintADD) {
+            OpCodes[OpIndex] = "AC";
+            OpIndex++;
+            OpCodes[OpIndex] = "FF";
+            OpIndex++;
+            OpIndex++;
+            OpCodes[OpIndex] = "A2";
+            OpIndex++;
+            OpCodes[OpIndex] = "01";
+            OpIndex++;
+            OpCodes[OpIndex] = "FF";
+            OpIndex++;
+        } else {
+        }
     }
+    
 }
 //check if a string is an integer
 bool isInt(const string& str) {
@@ -374,55 +389,26 @@ void intAdd(int i){
                 }
 }
 void intPrintAdd(int i){
-     bool isSaved = false;
-                for(int j = TotalAdds+2; j>0; j--){
+
+                for(int j = TotalAdds+1; j>0; j--){
                     if(!is_int(elements[i+j])){
-                        if(j+1 == 2){
-                            OpCodes[OpIndex] = "6D";
-                            OpIndex++;
-                            OpCodes[OpIndex] = "FF";
-                            OpIndex++;
-                            OpIndex++;
-                            OpCodes[OpIndex] = "8D";
-                            OpIndex++;
-                            string MLOC = searchForVarLoc(elements[j+i], j+i);
-                            OpCodes[OpIndex] = MLOC;
-                            OpIndex++;
-                            break;
-                        }
-                    } else {
-                        if(isPrintADD){
-                            OpCodes[OpIndex] = "6D";
-                            OpIndex++;
-                            OpCodes[OpIndex] = "FF";
-                            OpIndex++;
-                            OpIndex++;
-                            OpCodes[OpIndex] = "8D";
-                            OpIndex++;
-                            OpCodes[OpIndex] = "FF";
-                            OpIndex++;
-                            OpIndex++;
-                        } else { 
-                            OpCodes[OpIndex] = "A9";
-                            OpIndex++;
-                            string adder = stringToHex(elements[i+j]);
-                            OpCodes[OpIndex] = adder;
-                            OpIndex++;
-                        }
-                    }
-                    if(!isSaved){
-                        if(!isPrint){
-                            isPrint = true;
-                        }else {
-                            OpCodes[OpIndex] = "8D";
-                            OpIndex++;
-                            OpCodes[OpIndex] = "FF";
-                            OpIndex++;
-                            OpIndex++;
-                            isSaved = true;
-                            }
-                        
-                    } else {
+                        string VarLoc = searchForVarLoc(elements[i+j],i+j);
+                        OpCodes[OpIndex] = "AD";
+                        OpIndex++;
+                        OpCodes[OpIndex] = VarLoc;
+                        OpIndex++;
+                        OpIndex++;
+                        OpCodes[OpIndex] = "8D";
+                        OpIndex++;
+                        OpCodes[OpIndex] = "FF";
+                        OpIndex++;
+                        OpIndex++;
+                    }else {
+                        OpCodes[OpIndex] = "A9";
+                        OpIndex++;
+                        string adder = stringToHex(elements[i+j]);
+                        OpCodes[OpIndex] = adder;
+                        OpIndex++;
                         OpCodes[OpIndex] = "6D";
                         OpIndex++;
                         OpCodes[OpIndex] = "FF";
@@ -432,9 +418,10 @@ void intPrintAdd(int i){
                         OpIndex++;
                         OpCodes[OpIndex] = "FF";
                         OpIndex++;
-                        OpIndex++;    
-                    }
-                }
+                        OpIndex++;
+                    }    
+                        
+    }
 }
 void AssignTempLocs(){
     string TnumsFound;
