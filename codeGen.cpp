@@ -26,7 +26,7 @@ vector<tuple<string, string, int>> Tnums;
 vector<string> elements;
 vector<pair<string, int>> Scopes;
 //make an int to track string loc in heap (start of heap for strings)
-int SLocHeap = 238;
+int SLocHeap = 243;
 bool isPrint = true;
 bool isPrintADD = false;
 
@@ -285,14 +285,14 @@ void StringAssignment(int i){
     OpCodes[OpIndex] = "A9";
     OpIndex++;
     vector<string> HeapString = writeStringToHeap(elements[i+2]);
-    int HeapLoc = SLocHeap + HeapString.size();
+    OpCodes[SLocHeap] = "00";
+    SLocHeap = SLocHeap - HeapString.size();
     string heapLoc = intToHex(SLocHeap);
-    OpCodes[HeapLoc] = "00";
-    HeapLoc--;
-    for(int i = HeapString.size()-1; i>=0;i--){
-        OpCodes[HeapLoc] = HeapString[i];
-        HeapLoc--;
+    for(int i = 0; i< HeapString.size();i++){
+        OpCodes[SLocHeap] = HeapString[i];
+        SLocHeap++;
     }
+    SLocHeap = SLocHeap - HeapString.size()-1;
     OpCodes[OpIndex] = heapLoc;
     OpIndex++;
     OpCodes[OpIndex] = "8D";
